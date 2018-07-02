@@ -1,0 +1,147 @@
+body
+{
+  background-color: white;
+}
+
+nav
+{
+  display:flex;
+  background-color: #262930;
+  color: white;
+}
+
+nav h2
+{
+  font-size: 1.2em;
+  margin: 15px;
+}
+
+nav img
+{
+  width: 120px;
+  height: 30px;
+  margin-right: 20px;
+  margin-top: 19px;
+}
+
+nav ul,li
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0px;
+  float: left;
+}
+
+nav .btn
+{
+  margin:0px;
+  padding: 5px;
+  margin-right: 15px;
+  margin-top: 10px;
+}
+
+.show_message_error
+{
+  background-color: red;
+  width: 100%;
+  color:white;
+  font-size: 1.2em;
+  padding-left: 30px;
+  opacity: 1;
+}
+
+.connection
+{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+  border-style: solid;
+  border-radius: 20px;
+  padding: 20px;
+  /* margin-top: 200px; */
+  margin-top: 10%;
+}
+
+.connection table
+{
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.connection td
+{
+  vertical-align: baseline;
+}
+
+.connection p
+{
+  text-align: center;
+}
+
+.nodes_page
+{
+  width: 100%;
+  height: 100%;
+  padding-top: 3%;
+  position: relative;
+}
+
+.nodes_list
+{
+  width: 40%;
+  height: 35%;
+  display: flex;
+  margin-left: 8%;
+  position: absolute;
+}
+
+.nodes_stagging
+{
+  width: 40%;
+  height: 37%;
+  margin-left: 53%;
+  display: flex;
+  position: relative;
+}
+
+.nodes_vars
+{
+  width: 90%;
+  height: 35%;
+  margin-top: 5%;
+  margin-left: 8%;
+  display: flex;
+  position: relative;
+}
+
+
+
+.panel
+{
+  width: 90%;
+  height: 100%;
+}
+
+.menu
+{
+  display: block;
+  padding-top: 10px;
+}
+
+.glyphicon-plus
+{
+  color: green;
+}
+
+
+footer
+{
+  position:fixed;
+  bottom: 0;
+  background-color: #262930;
+  width: 100%;
+  height:80px;
+}

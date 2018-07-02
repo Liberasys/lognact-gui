@@ -1,0 +1,153 @@
+{% extends 'template.html' %}
+{% block title %} {{ _('playbook') }} {% endblock %}
+{% block work %}
+<section class = "page_playbooks">
+
+
+<div class= "left">
+
+  <div class="container">
+    <div class="panel panel-info">
+      <div class="panel-heading">{{_('Select group and node')}}</div>
+      <div class="panel-body">
+
+
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+          {{_('Groups')}}
+        <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          {% if results is not undefined %}
+            {% if results[1] is not none %}
+              {% for group in results[1] %}
+                  {% if group == session['selected_group'] %}
+                  <li><a style="color:red;">{{group}}</a></li>
+                  {% else %}
+                  <li><a id ="{{group}}_from_groups_list_in_playbook" onclick="select_group('_from_groups_list_in_playbook', '{{group}}')">{{group}}</a></li>
+                  {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="checkbox">
+      <label><input type="checkbox" value="">{{_("'all'")}}</label>
+      </div>
+
+
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{_('Nodes')}}
+        <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          {% if results is not undefined %}
+            {% if results[2] is not none %}
+              {% for node in results[2] %}
+                  <li><a id ="{{node}}_from_node_in_group_in_playbook" onclick="select_node('_from_node_in_group_in_playbook', '{{node}}')">{{node}}</a></li>
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </ul>
+      </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading">{{_('Select playbook')}}</div>
+          <div class="panel-body">
+            <table>
+              <tr>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{_('Playbook')}}
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                      <li><a href="#">playbook1</a></li>
+                      <li><a href="#">playbook2</a></li>
+                      <li><a href="#">playbook3</a></li>
+                    </ul>
+                  </div>
+                </td>
+                <td>
+                  <button type="button" onclick="run_node()" class="btn btn-info">{{_('run node')}}</button>
+                </td>
+              <tr>
+                <td></td>
+                <td>
+                  <button data-toggle="modal" data-target="#add_group" type="button" class="btn btn-warning">{{_('run group')}}</button>
+                </td>
+              </tr>
+            </table>
+        </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="right">
+  <div class="last_playbook">
+    <div class="panel panel-info">
+      <div class="panel-heading">{{_('Informations')}}</div>
+      <div class="panel-body">
+        <div class="infos">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Command</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>temp_status</td>
+                <td>temp_command</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel panel-warning">
+          <div class="panel-heading">{{_('Output')}}</div>
+          <div class="panel-body">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="add_group" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{_('run group')}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action ="{{ url_for('add_group') }}">
+          <table>
+            <tr>
+              <td><span>{{_('Are you sure to run group ? : ')}}</span></td>
+            </tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a type="button" class="btn btn-warning" href="#" data-dismiss="modal">{{_('Validate')}}</a>
+        <button type="button" class="btn btn-success" data-dismiss="modal">{{_('Cancel')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

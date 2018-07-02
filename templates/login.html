@@ -1,0 +1,22 @@
+<div class = 'connection'>
+  <form method="POST" action ="{{ url_for('connection') }}">
+    <table>
+      <tr>
+        <p>{{_('Please login :')}}</p>
+      <tr>
+      </tr>
+      <tr>
+        <td><label for="username">{{ _('Username') }} : </label></td>
+        <td><input name="username" id="username" required></td>
+      </tr>
+      <tr>
+        <td><label for="password">{{ _('Password') }} : </label></td>
+        <td><input type="password" name="password" id="password" required> </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><input type="submit" value="{{ _('Connection') }}"><td>
+      </tr>
+    </table>
+  </form>
+</div>

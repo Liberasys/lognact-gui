@@ -1,0 +1,618 @@
+html
+{
+  height: 100%;
+}
+
+body
+{
+  height: 100%;
+  max-height: 300px;
+}
+
+nav
+{
+  display:flex;
+  background-color: #262930;
+  color: white;
+}
+
+nav h2
+{
+  font-size: 1.2em;
+  margin: 15px;
+}
+
+nav img
+{
+  width: 120px;
+  height: 30px;
+  margin-right: 20px;
+  margin-top: 19px;
+}
+
+nav ul,li
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0px;
+  float: left;
+}
+
+nav .btn
+{
+  margin:0px;
+  padding: 5px;
+  margin-right: 15px;
+  margin-top: 10px;
+}
+
+
+.main_page
+{
+  min-height: 100%;
+  width: 100%;
+}
+
+.show_message_error
+{
+  background-color: red;
+  width: 100%;
+  color:white;
+  font-size: 1.2em;
+  padding-left: 30px;
+  opacity: 1;
+}
+
+.connection
+{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+  border-style: solid;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 18%;
+}
+
+.connection table
+{
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.connection td
+{
+  vertical-align: baseline;
+}
+
+.connection p
+{
+  text-align: center;
+}
+
+
+.page_nodes{
+  height: 100%;
+  padding-top: 2%;
+  padding-left: 6%;
+  padding-right: 6%;
+}
+
+.page_nodes_groups
+{
+  width: 100%;
+  height: 100%;
+  padding-top: 2%;
+  padding-left: 6%;
+  padding-right: 6%;
+  padding-bottom: 10%;
+}
+
+.page_tasks_list
+{
+  width: 100%;
+  height: 100%;
+  padding-top: 2%;
+  padding-left: 6%;
+  padding-right: 6%;
+  padding-bottom: 8%;
+}
+
+.page_playbooks
+{
+  width: 100%;
+  min-height: 100%;
+  padding-top: 2%;
+  padding-left: 6%;
+  padding-right: 6%;
+  padding-bottom: 8%;
+  display: flex;
+  flex-direction: row;
+}
+
+
+.table_configured
+{
+  height: 80%;
+}
+
+.table_configured .table_and_body{
+  height: 80%;
+  overflow-y: scroll;
+}
+
+.table_configured .table
+{
+  margin: 0;
+  padding: 0;
+  height: 10%;
+}
+
+.table_configured .table_title
+{
+  width: 99%;
+}
+
+.table_configured .table th
+{
+  text-align: center;
+  width: 25%;
+}
+
+.table_configured .table td
+{
+  text-align: center;
+  width: 25%;
+}
+
+.page_tasks_list .table_configured .table th
+{
+  width: auto;
+}
+
+.tasks_list .table_configured .table th
+{
+  text-align: center;
+  width: 5%;
+}
+
+.tasks_list .table_configured .table td
+{
+  text-align: center;
+  width: 5%;
+}
+
+
+.up
+{
+  min-width: 100%;
+  height: 50%;
+}
+
+.page_nodes_groups .up
+{
+  min-width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.down
+{
+  margin-top: 2%;
+  height: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.left
+{
+width: 50%;
+height: 100%;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+margin-right: 2%;
+}
+
+.right
+{
+  width: 60%;
+  height: 100%;
+}
+
+
+.page_tasks_list .up
+{
+  min-width: 100%;
+  height: 40%;
+}
+
+.page_tasks_list .down
+{
+  margin-top: 0;
+  height: 60%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* .add_and_delete
+{
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: auto;
+} */
+
+.add_and_delete a
+{
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: 4em;
+}
+
+.page_nodes .nodes_list
+{
+  min-height: 200px;
+  min-width: 350px;
+  width: 40%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.page_nodes_groups .nodes_list
+{
+  height: 100%;
+  min-width: 350px;
+  width: 42%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.tasks_list
+{
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.tasks_log
+{
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.groups_list
+{
+  height: 100%;
+  min-width: 400px;
+  width: 45%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.vars_groups_list
+{
+  height: 100%;
+  min-width: 400px;
+  width: 45%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+
+.nodes_group_list
+{
+  height: 100%;
+  min-width: 350px;
+  width: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.last_playbook
+{
+  height: 100%;
+}
+
+.last_playbook .panel
+{
+  height: 100%;
+}
+
+/* .last_playbook .panel-heading
+{
+  height: 5%;
+} */
+
+.last_playbook .panel-body
+{
+  height: 95%;
+}
+
+.last_playbook .panel-body .infos
+{
+  height: 10%;
+  margin-bottom: 3%
+}
+
+.last_playbook .panel-body .panel
+{
+  height: 87%;
+}
+
+
+.left .container
+{
+  width: 100%;
+  height:100%;
+  padding: 0;
+  margin: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.left .panel
+{
+  margin:0;
+  padding: 0;
+  height: 100%;
+}
+
+.left .panel .panel-body
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.left .panel .panel-body .dropdown
+{
+  width: 40%;
+}
+
+.left .panel .panel-body table .dropdown
+{
+  width: 100%;
+}
+
+.left .panel .panel-body button
+{
+  width: 100%;
+}
+
+
+
+.left .dropdown
+{
+  width: 100%;
+  z-index: 1;
+}
+
+.left .dropdown-menu
+{
+  width: 100%;
+  min-height: 180px;
+  max-height: 100%;
+  overflow-y: scroll;
+}
+
+
+.left .panel .panel-body table
+{
+  line-height:30px;
+  width: 100%;
+}
+
+
+.left .panel .panel-body table td
+{
+  padding: 10px;
+  width: 50%;
+}
+
+.left .panel .panel-body table button
+{
+  width: 100%;
+}
+
+.left .panel .panel-body .dropdown-toggle
+{
+  width: 100%;
+}
+
+
+.left table .dropdown
+{
+  width: 100%;
+  z-index: 0;
+}
+
+
+.left table .dropdown-menu
+{
+  width: 100%;
+  min-height: 180px;
+  max-height: 100%;
+  overflow-y: scroll;
+}
+
+.inline div
+{
+  float: left;
+  vertical-align: center;
+}
+
+.table_and_body
+{
+  width: 100%;
+  max-height: 70%;
+  margin: 0;
+  padding: 0;
+}
+
+
+.tasks_log .table_and_body
+{
+  width: 100%;
+  max-height: 85%;
+  margin: 0;
+  padding: 0;
+  overflow-y: scroll;
+}
+
+
+
+
+.stagging_menu
+{
+  min-height: 200px;
+  width: 40%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  float: right;
+  margin-right: 30px;
+}
+
+.nodes_vars
+{
+  min-height: 250px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  margin-top: 2%;
+}
+
+
+.set_overflow
+{
+  width: 100%;
+}
+
+.panel
+{
+margin: 0;
+padding: 0;
+}
+
+.menu {
+  padding-top: 12px;
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: center;
+}
+
+.glyphicon
+{
+  cursor: pointer;
+}
+
+.glyphicon-plus{
+  margin: 0;
+  padding: 0;
+  padding-left: 2px;
+  color: green;
+  font-size: 1em;
+}
+
+.glyphicon-minus{
+  margin: 0;
+  padding: 0;
+  color: red;
+  font-size: 1em;
+}
+
+.glyphicon-pencil{
+  color: black;
+  padding: 0;
+  margin: 0;
+  font-size: 1em;
+}
+
+.glyphicon-arrow-left{
+  color: red;
+}
+
+.glyphicon-arrow-right{
+  color: green;
+}
+
+.button_configured
+{
+  margin: 0;
+  padding: 0;
+  background-color: inherit;
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.button_configured .glyphicon
+{
+  margin: 0;
+  padding: 0;
+}
+
+.inline
+{
+  display: inline;
+}
+
+.tasks_list
+{
+  height: 100%;
+}
+
+
+.tasks_list table tr td
+{
+  margin:0;
+  padding:0;
+  height: 40px;
+  vertical-align: middle;
+
+}
+
+.table_configured
+{
+  overflow-y: scroll;
+  height: 65%;
+}
+
+
+
+
+
+/* Footer */
+footer
+{
+  position:fixed;
+  bottom: 0;
+  background-color: #262930;
+  width: 100%;
+  height:80px;
+}

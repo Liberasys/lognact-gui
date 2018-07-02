@@ -1,0 +1,200 @@
+# Translations template for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-06-22 21:21+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: api/entities_not_in_bdd/managers/inventory.py:156
+#, python-format
+msgid "The %(entity_type)s \"%(entity_name)s\" already exists"
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/inventory.py:177
+#, python-format
+msgid "The %(entity_type)s \"%(entity_name)s\" does not exists."
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/inventory.py:256
+#, python-format
+msgid ""
+"The %(entity_type)s \"%(entity_name)s\" does not contain \"%(var_name)s\""
+" variable. Cannot get its value."
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/inventory.py:270
+#, python-format
+msgid ""
+"The %(entity_type)s \"%(entity_name)s\" does not contain \"%(var_name)s\""
+" variable. Cannot remove it."
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/inventory.py:300
+#, python-format
+msgid ""
+"The group \"%(group_name)s\" does not contain node \"%(node_name)s\". "
+"Cannot remove it."
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/permissions_manager.py:37
+msgid "wrong password"
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/users_and_users_groups_manager.py:19
+#, python-format
+msgid "User %(name)s added successfully"
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/users_and_users_groups_manager.py:21
+#, python-format
+msgid "Error encountered with adding user : %(name)s"
+msgstr ""
+
+#: api/entities_not_in_bdd/managers/users_and_users_groups_manager.py:31
+#, python-format
+msgid "User %(name)s not found"
+msgstr ""
+
+#: api/services/yaml_file_syncer.py:30
+#, python-format
+msgid "Cannot create file: %(file_path)s."
+msgstr ""
+
+#: api/services/yaml_file_syncer.py:46
+#, python-format
+msgid "Unable to get mutex on file: %(file_path)s."
+msgstr ""
+
+#: api/services/yaml_file_syncer.py:63
+#, python-format
+msgid "Cannot read file : %(file_path)s."
+msgstr ""
+
+#: api/services/yaml_file_syncer.py:77
+#, python-format
+msgid "Cannot open or write file: %(file_path)s."
+msgstr ""
+
+#: dl_flask/templates/login.html:5
+msgid "Please login :"
+msgstr ""
+
+#: dl_flask/templates/login.html:9
+msgid "Username"
+msgstr ""
+
+#: dl_flask/templates/login.html:13
+msgid "Password"
+msgstr ""
+
+#: dl_flask/templates/login.html:18
+msgid "Connection"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:2
+msgid "nodes"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:9 dl_flask/templates/nodes_groups.html:57
+msgid "Nodes list"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:16 dl_flask/templates/nodes.html:63
+#: dl_flask/templates/nodes_groups.html:18
+#: dl_flask/templates/nodes_groups.html:64
+#: dl_flask/templates/nodes_groups.html:115
+msgid "search by name"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:49
+msgid "Stagging menu"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:56
+msgid "Nodes vars"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:268
+msgid "add node"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:274
+msgid "Node name ? : "
+msgstr ""
+
+#: dl_flask/templates/nodes.html:276 dl_flask/templates/nodes_groups.html:218
+msgid "add"
+msgstr ""
+
+#: dl_flask/templates/nodes.html:282 dl_flask/templates/template.html:43
+msgid "close"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:2 dl_flask/templates/template.html:22
+msgid "nodes groups"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:11
+msgid "Groups list"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:26
+msgid "Groups"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:108
+msgid "Nodes groups list"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:210
+msgid "add group"
+msgstr ""
+
+#: dl_flask/templates/nodes_groups.html:216
+msgid "Groupe name ? : "
+msgstr ""
+
+#: dl_flask/templates/permissions.html:2
+msgid "permissions"
+msgstr ""
+
+#: dl_flask/templates/playbook.html:2 dl_flask/templates/template.html:25
+msgid "playbook"
+msgstr ""
+
+#: dl_flask/templates/task_list.html:2 dl_flask/templates/template.html:28
+msgid "task list"
+msgstr ""
+
+#: dl_flask/templates/template.html:19
+msgid "node"
+msgstr ""
+
+#: dl_flask/templates/template.html:32
+msgid "disconnect"
+msgstr ""
+
+#: dl_flask/templates/template.html:43
+msgid "Error"
+msgstr ""
+
+#: dl_flask/templates/users.html:2
+msgid "user manager"
+msgstr ""
+
+#: dl_flask/templates/users_groups.html:2
+msgid "users group"
+msgstr ""
+

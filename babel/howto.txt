@@ -1,0 +1,77 @@
+
+flask - babel minimal exemple:
+
+app = Flask(__name__)
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+babel = Babel(app)
+
+@babel.localeselector -> defini le langage utilisé par l'utilisateur
+def get_locale():
+    return 'fr'
+
+
+Eléments pris en compte par l'extracteur :
+
+ex: 	dans une page html :	<p>Texte brut a modifier : {{_('My test')}}</p>
+				l'underscore permet a Babel d'identifier le contenu en element a extraire
+
+
+ex: 	fonction etape 1 : 	text_not_variable = gettext(u'The group %(text)s doesn\'t exist', text=_group)
+				results = {'text_not_variable':text_not_variable}
+				render_template('index.html', results = results)
+
+	etape 2 html : 		results['text_not_variable']
+
+
+ex routeur :
+		etape 1 :	@app.route('/')
+				def index():
+				    _group = "group_1"
+				    text_not_variable = gettext(u'The group %(text)s doesn\'t exist', text=_group)
+
+				    results = {'text_not_variable':text_not_variable}
+
+				    return render_template('index.html', results=results)
+
+		etape 2 : 	<!DOCTYPE html>
+				<head>
+				  <meta charset="UTF-8">
+				  <title> Translation test</title>
+				</head>
+				<body>
+				  <p>Texte a modifier + variable a ne pas modifier : {{results['text_not_variable']}}
+				</body>
+
+
+Création de la configuration :
+1 - creer le fichier babel.cfg et ajouter:
+	[python: **.py]
+	[jinja2: **/templates/**.html]
+	extensions=jinja2.ext.autoescape,jinja2.ext.with_
+
+
+
+Création de la traduction :
+
+1 - pybabel extract -F ./babel.cfg -o messages.pot .
+Creer un nouveau fichier d'extraction
+2 -pybabel init -i ./(path)/messages.pot -d translations -l fr
+Crée le repertoire de langue 'fr' et son fichier de traduction.
+3 -pybabel compile -d translations
+Compilation des traductions
+
+
+Suite ajout ou modification d'un texte à traduire :
+
+1 - pybabel extract -F babel.cfg -o messages.pot .
+Creer un nouveau fichier d'extraction
+2 - pybabel update -i messages.pot -d translations
+Met à jour les fichiers de traductions
+3 - modifier manuellement les nouvelles entrées
+
+
+Creation d'une nouvelle langue de traduction :
+1 -pybabel init -i messages.pot -d translations -l 'de' (exemple)
+Creer le repertoire de langue et son fichier de traduction.
+3 -pybabel compile -d translations
+Compile la nouvelle translation sans supprimer les precedentes.

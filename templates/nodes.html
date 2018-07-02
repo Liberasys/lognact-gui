@@ -1,0 +1,180 @@
+{% extends 'template.html' %}
+{% block title %}{{ _('nodes') }} {% endblock %}
+{% block work %}
+
+<section class = "page_nodes">
+
+<div class="nodes_list">
+  <div class="panel panel-info set_overflow">
+    <div class="panel-heading">{{_('Nodes list')}}</div>
+    <div class = 'search'>
+      <!-- action = implement ajax request -->
+      <form method="POST" action ="{{ url_for('connection') }}">
+        <table>
+          <tr>
+            <td><input name="nodename" id="nodename" required></td>
+            <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+          <tr>
+        </table>
+      </form>
+    </div>
+      <div class="table_configured">
+        <table class="table">
+          <tr>
+            <th>Noeuds</th>
+          </tr>
+        </table>
+        <div class="table_and_body">
+          <table class="table table-hover">
+            {% if results is not undefined %}
+              {% if results[1] is not none %}
+                {% for node in results[1] %}
+                  <tr>
+                    {% if node == session['selected_node'] %}
+                    <td class="red">{{node}}</td>
+                    {% else %}
+                    <td id ="{{node}}_from_nodes_list" onclick="select_node('_from_nodes_list', '{{node}}')">{{node}}</td>
+                    {% endif %}
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          </table>
+        </div>
+      </div>
+    </div>
+      <div class="menu">
+        <a data-toggle="modal" data-target="#add_node"><span class="glyphicon glyphicon-plus"></span></a>
+        <a onclick="delete_node()"><span class="glyphicon glyphicon-minus"></span></a>
+      </div>
+  </div>
+</div>
+
+<div class = "stagging_menu">
+<div class="panel panel-info set_overflow">
+  <div class="panel-heading">{{_('Stagging menu')}}</div>
+</div>
+</div>
+
+
+<div class="nodes_vars">
+<div class="panel panel-info set_overflow">
+  <div class="panel-heading">{{_('Nodes vars')}}</div>
+  <div class = 'search'>
+    <!-- action = implement ajax request -->
+    <form method="POST" action ="{{ url_for('connection') }}">
+      <table>
+        <tr>
+          <td><input name="varname" id="varname" required></td>
+          <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+        <tr>
+      </table>
+    </form>
+  </div>
+  <div class="table_configured">
+    <table class="table table_title">
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Menu</th>
+      </tr>
+    </table>
+    <div class="table_and_body">
+      <table class="table table-hover">
+        {% if results is not undefined %}
+          {% if results[2] is not none %}
+            {% for variable in results[2] %}
+              <tr>
+                <td>{{variable}}</td>
+                <td>{{results[2][variable]}}</td>
+                <td>
+                  <a data-toggle="modal" data-id="{{variable}}" class="open-modifyNodeVarDialog button_configured" href="#modify_var_from_node"><span class="glyphicon glyphicon-pencil"></span></a>
+                  <a onclick="delete_var_from_node('{{variable}}')" class="button_configured"><span class="glyphicon glyphicon-minus"></span></a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+<div class="menu">
+  <a data-toggle="modal" data-id="{{_('New var')}}" class="open-modifyNodeVarDialog button_configured" href="#modify_var_from_node"><span class="glyphicon glyphicon-plus"></span></a>
+</div>
+</div>
+
+</section>
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="add_node" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{_('add node')}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action ="{{ url_for('add_node') }}">
+          <table>
+            <tr>
+              <td><span>{{_('Node name ? : ')}}</span></td>
+              <td><input name="nodename" id="nodename" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('add') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{_('close')}}</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modify_var_from_node" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{_('modify value')}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action ="{{ url_for('set_node_var') }}">
+          <table>
+            <tr>
+              <td><span>{{_('New value ? : ')}}</span></td>
+              <td><input name="varName" id="varId" required></td>
+              <td><input name="varValue" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('add / modify') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{_('Cancel')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,12 @@
+PGSQL_DB_NAME=db_lognact
+PGSQL_USERNAME=ulognact
+PGSQL_USERPWD="oTPoW29Dg689"
+
+/bin/su --login postgres --command "/usr/bin/createuser --no-superuser --no-createdb --no-createrole --login ${PGSQL_USERNAME}"
+/bin/su --login postgres --command "/usr/bin/psql --command=\"ALTER USER ${PGSQL_USERNAME} PASSWORD '${PGSQL_USERPWD}'\""
+/bin/su --login postgres --command "/usr/bin/createdb --encoding UTF8 --owner ${PGSQL_USERNAME} ${PGSQL_DB_NAME}"
+/bin/su --login postgres --command "/usr/bin/psql --command \"GRANT ALL PRIVILEGES ON DATABASE ${PGSQL_DB_NAME} to ${PGSQL_USERNAME}\""
+
+# test
+/bin/su --login postgres --command "psql --command=\"\d\" --username=${PGSQL_USERNAME} --dbname=${PGSQL_DB_NAME}"
+

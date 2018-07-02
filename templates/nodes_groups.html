@@ -1,0 +1,253 @@
+{% extends 'template.html' %}
+{% block title %}{{ _('nodes groups') }} {% endblock %}
+{% block work %}
+<section class = "page_nodes_groups">
+
+
+<div class= "up">
+
+<div class="groups_list">
+  <div class="panel panel-info set_overflow">
+    <div class="panel-heading">{{_('Groups list')}}</div>
+      <div class = 'search'>
+        <form method="POST" action ="{{ url_for('connection') }}">
+          <table>
+            <tr>
+              <td><input name="nodename" id="nodename" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="table_configured">
+        <table class="table">
+          <tr>
+            <th>{{_('Groups')}}</th>
+          </tr>
+        </table>
+        <div class="table_and_body">
+        <table class="table table-hover">
+          {% if results is not undefined %}
+            {% if results[1] is not none %}
+              {% for group in results[1] %}
+                <tr>
+                  {% if group == session['selected_group'] %}
+                  <td class="red">{{group}}</td>
+                  {% else %}
+                  <td id ="{{group}}_from_groups_list" onclick="select_group('_from_groups_list', '{{group}}')">{{group}}</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </table>
+        </div>
+      </div>
+    </div>
+    <div class="menu">
+      <a data-toggle="modal" data-target="#add_group"><span class="glyphicon glyphicon-plus"></span></a>
+      <a onclick="delete_group()"><span class="glyphicon glyphicon-minus"></span></a>
+    </div>
+  </div>
+
+  <div class="groups_vars">
+  <div class="panel panel-info set_overflow">
+    <div class="panel-heading">{{_('Group vars')}}</div>
+    <div class = 'search'>
+      <!-- action = implement ajax request -->
+      <form method="POST" action ="{{ url_for('connection') }}">
+        <table>
+          <tr>
+            <td><input name="varname" id="varname" required></td>
+            <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+          <tr>
+        </table>
+      </form>
+    </div>
+    <div class="table_configured">
+      <table class="table table_title">
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+          <th>Menu</th>
+        </tr>
+      </table>
+      <div class="table_and_body">
+        <table class="table table-hover">
+          {% if results is not undefined %}
+            {% if results[4] is not none %}
+              {% for variable in results[4] %}
+                <tr>
+                  <td>{{variable}}</td>
+                  <td>{{results[4][variable]}}</td>
+                  <td>
+                    <a data-toggle="modal" data-id="{{variable}}" class="open-modifyGroupVarDialog button_configured" href="#modify_var_from_group"><span class="glyphicon glyphicon-pencil"></span></a>
+                    <a onclick="delete_var_from_group('{{variable}}')" class="button_configured"><span class="glyphicon glyphicon-minus"></span></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="menu">
+    <a data-toggle="modal" data-id="{{_('New var')}}" class="open-modifyGroupVarDialog button_configured" href="#modify_var_from_group"><span class="glyphicon glyphicon-plus"></span></a>
+    <!-- <a href="{{ url_for('set_node_var') }}"><span class="glyphicon glyphicon-plus"></span></a> -->
+  </div>
+  </div>
+
+
+
+
+</div>
+
+
+<div class="down">
+
+  <div class="nodes_list">
+    <div class="panel panel-info set_overflow">
+      <div class="panel-heading">{{_('Nodes list')}}</div>
+        <div class = 'search'>
+          <form method="POST" action ="{{ url_for('connection') }}">
+            <table>
+              <tr>
+                <td><input name="nodename" id="nodename" required></td>
+                <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+              <tr>
+            </table>
+          </form>
+        </div>
+        <div class="table_configured">
+          <table class="table">
+            <tr>
+              <th>{{_('Nodes')}}</th>
+            </tr>
+          </table>
+          <div class="table_and_body">
+          <table class="table table-hover">
+            {% if results is not undefined %}
+              {% if results[2] is not none %}
+                {% for node in results[2] %}
+                  <tr>
+                    <td id ="{{node}}_from_nodes_not_in_group" onclick="select_node('_from_nodes_not_in_group', '{{node}}')">{{node}}</td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          </table>
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+<div class="add_and_delete">
+      <a onclick="add_node_in_group()"><span  class="glyphicon glyphicon-arrow-right"></span></a>
+      <a onclick="remove_node_from_group()"><span class="glyphicon glyphicon-arrow-left"></span></a>
+</div>
+
+
+<div class="nodes_group_list">
+  <div class="panel panel-info set_overflow">
+    <div class="panel-heading">{{_('Nodes in selected group')}}</div>
+      <div class = 'search'>
+        <form method="POST" action ="{{ url_for('connection') }}">
+          <table>
+            <tr>
+              <td><input name="nodename" id="node_group_name" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('search by name') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="table_configured">
+        <table class="table">
+          <tr>
+            <th>{{_('Nodes')}}</th>
+          </tr>
+        </table>
+        <div class="table_and_body">
+        <table class="table table-hover">
+          {% if results is not undefined %}
+            {% if results[3] is not none %}
+              {% for node in results[3] %}
+                <tr>
+                  <td id ="{{node}}_from_nodes_group" onclick="select_node_from_group('_from_nodes_group', '{{node}}')">{{node}}</td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </table>
+        </div>
+      </div>
+    </div>
+</div>
+
+</div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="add_group" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{_('add group')}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action ="{{ url_for('add_group') }}">
+          <table>
+            <tr>
+              <td><span>{{_('Groupe name ? : ')}}</span></td>
+              <td><input name="groupname" id="groupename" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('add') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{_('Cancel')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modify_var_from_group" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{_('modify value')}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action ="{{ url_for('set_group_var') }}">
+          <table>
+            <tr>
+              <td><span>{{_('New value ? : ')}}</span></td>
+              <td><input name="varName" id="varId" required></td>
+              <td><input name="varValue" required></td>
+              <td><input class='btn btn-default' type="submit" value="{{ _('add / modify') }}"><td>
+            <tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{_('Cancel')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}

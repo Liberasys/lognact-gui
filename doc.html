@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Log & Act Documentation</title>
+</head>
+<body>
+  <header>
+    <h1>log&act GUI</h1>
+
+
+    <p>run.py read the config.yml and send it to flask_app when he call it.</p>
+    <p>for the moment the user is simulated by creating user only for the session using config.yml 'admin'</p>
+    <p>flask_app instanciate managers and give his pointers into chained functions routes</p>
+    <p>forms and routes users'permissions are verified in the chained functions with the validator and the permissions_manager before execute the desired action</p>
+    <p>ex:</p>
+    <pre>results = self.manage_validator.is_valid_node(</pre>
+    <pre>   request.form['nodename'],</pre>
+    <pre>   self.permissions_manager.add_node,</pre>
+    <pre>   session['username'],</pre>
+    <pre>   self.inventory_manager.add_node,</pre>
+    <pre>   [request.form['nodename']])</pre>
+    <p>When adding node, validator chaine function like it :</p>
+    <p>- is_valid_node() : check if the request node name corresponding to preformated regex</p>
+    <p>- permissions_manager.add_node() : check if user is authorized to add a node</p>
+    <p>- inventory_manager.add_node() : finally if the user is authorized to add node, add it</p>
+    <p> If one of this verification is incorrect, a message is retourned with a null object</p>
+    <p>pages uses jinja2 to iterate objects from session and request.</p>
+    <p>javascript is used for some functions like ajax request.</p>
+    <p>for ansible, the inventory is loading on the server start (objects are instanciated), modified with the user's interactions (using routes)</p>
+
+    <p>not tested: </p>
+    <p>adding var when node list or group list is empty</p>
+
+    <p>some works to do :</p>
+    <p>implement configured webpage colors from config.yml</p>
+    <p>implement playbook and task_list pages</p>
+
+
+    <p>problems with :</p>
+    <p>works with multi-threads in flask-sqlalchemy</p>
+
+
+
+  </header>
+
+  <!-- run.py -->
+  <h2>run.py:</h2>
+  <p>Fichier de demarrage de l'api.</p>
+  <p>Se lance avec la commande: "python3 run.py".</p>
+  <p>Lit le fichier <a href="#config.yml">config.yml</a> et lance flask_app.</p>
+  <p>Hash le mot de passe du fichier de configuration si présent.</p>
+  <p>Importe :</p>
+  <ul>
+    <li> flask_app </li>
+    <li> yaml_file_syncer </li>
+    <li> hash_source </li>
+  </ul>
+
+  <!-- config.yml -->
+  <h2 id="config.yml">config.yml:</h2>
+  <p>Variables d'environnement pour l'api.</p>
+
+  <!-- babel -->
+  <h2>babel:</h2>
+  <p>Dossier contenant les fichiers de traduction.</p>
+  <p>Utilise le fichier config/babel.cfg pour sa recherche de mots</p>
+  <p>Genère les fichiers de langues dans config/translations/language/LC_MESSAGES<p>
+
+  <!-- lib -->
+  <h2>lib:</h2>
+  <p>Dossier contenant les modules pour l'api.<p>
+  <p>Liste des modules :</p>
+  <ul>
+    <li><!-- hash source -->
+      <h4>hash_source.py :</h4></p>
+      <p>Importe :</p>
+      <ul>
+        <li> hashlib </li>
+      </ul>
+      <p>Fonctions :</p>
+      <ul>
+        <li>
+          <p>hash(source) : Hash la source vers sha512</p>
+        </li>
+      </ul>
+    </li>
+
+    <li><!-- inventory_manager -->
+      <h4>inventory_manager.py :</h4>
+      <p>Gère la manipulation des objets "Noeud" et "Groupe" et leur association</p>
+      <p>Gère la persistance des objets dans le repertoire ansible, lui-même defini par le path dans le fichier de configuration <a href="#config.yml">config.yml</a></p>
+      <p>Importe :</p>
+      <ul>
+        <li> yaml </li>
+        <li> time  </li>
+        <li> logging </li>
+        <li> copy </li>
+        <li> gettext from flask_babel </li>
+        <li> YamlFileSyncer from yaml_file_syncer </li>
+        <li> yaml_dump_like_ansible from </li>
+        <li> Group, Node, NodeOrGroup from nodes_and_groups </li>
+      </ul>
+    </li>
+    <p>Fonctions :</p>
+    <ul>
+        <li> __populate_from_files(self) : peuple les dictionnaires correspondant aux objets Noeuds et Groupes depuis leurs fichiers</li>
+        <li> __write_file(self) : ##</li>
+        <li> get_new_inventory_content(self) : ##</li>
+        <li> __is_a_group_not_empty(self) : ##</li>
+        <li> dump_groups(self) : ##</li>
+        <li> dump_nodes(self) : ##</li>
+        <li> dump(self) : ##</li>
+        <li> get_group_names(self) : retourne les noms des groupes exixtants</li>
+        <li> get_node_names(self) : retourne les noms des noeuds exixtants</li>
+        <li> __get_class_and_dict_from_entity_type(self, type) : ##</li>
+        <li> add_group(self, group_name, sync=True) : ajoute un groupe</li>
+        <li> add_node(self, group_name, sync=True) : ajoute un noeud</li>
+        <li> __add_entity(self, entity_type, entity_name, sync=True) : ajoute l'entité par son type</li>
+        <li> get_group_by_name(self, group_name) : retourne l'objet groupe par son nom</li>
+        <li> get_node_by_name(self, node_name) : retourne l'objet noeud par son nom</li>
+        <li> __get_entity_by_name(self, entity_type, entity_name) : retourne l'objet noeud ou group par son type et son nom</li>
+        <li> del_group_by_name_(self, group_name, sync=True) : supprime le groupe par son nom</li>
+        <li> del_node_by_name_(self, group_name, sync=True) : supprime le noeud par son nom</li>
+        <li> __del_entity_by_name_(self, entity_type, entity_name, sync=True) : supprime le noeud ou le group par son type et son nom</li>
+        <li> get_group_by_name_vars_dict(self, group_name) : retourne le dictionnaire de variable correspondant au group par son nom</li>
+        <li> get_node_by_name_vars_dict(self, node_name) : retourne le dictionnaire de variable correspondant au noeud selectionné</li>
+        <li> __get_entity_by_name_vars_dict(self, entity_type, entity_name) : retourne le dictionnaire de variable correspondant au noeud ou au group selon son type et son nom</li>
+        <li> set_group_by_name_vars_dict(self, group_name, vars_dict, sync=True) : initialise le dictionnaire de variable du groupe par son nom</li>
+        <li> set_node_by_name_vars_dict(self, node_name, vars_dict, sync=True) : initialise le dictionnaire de variable du noeud par son nom</li>
+        <li> __set_entity_by_name_vars_dict(self, entity_type, entity_name, vars_dict, sync=True) : initialise le dictionnaire de variable du noeud ou du groupe selon son type et son nom</li>
+        <li> update_group_by_name_var(self, group_name, var_name, var_value, sync=True) : met à jour la variable par son nom du group par son nom</li>
+        <li> update_node_by_name_var(self, node_name, var_name, var_value, sync=True) : met à jour la variable par son nom du noeud par son nom </li>
+        <li> __update_entity_by_name_var(self, entity_type, entity_name, var_name, var_value, sync=True) : met à jour la variable par son nom du noeud ou du groupe selon selon son type et son nom</li>
+        <li> get_group_by_name_value(self, group_name, var_name) : retourne la valeur de la variable par son son et le nom du groupe</li>
+        <li> get_node_by_name_value(self, node_name, var_name) : retourne la valeur de la variable par son nom et le nom du noeud</li>
+        <li> __get_entity_by_name_value(self, entity_type, entity_name, var_name) retourne la valeur de la variable par son nom et le nom du noeud ou du group selon son type</li>
+        <li> del_group_by_name_var(self, group_name, var_name, sync=True) : supprime la variable par son nom du groupe par son nom</li>
+        <li> del_node_by_name_var(self, node_name, var_name, sync=True) : supprime la variable par son nom du noeud par son nom</li>
+        <li> __del_entity_by_name_var(self, entity_type, entity_name, var_name, sync=True) : supprime la variable par son nom du noeud ou du groupe selon son type et son nom</li>
+        <li> add_node_name_in_group_name(self, node_name, group_name, sync=True) : ajoute un noeud par son nom dans un group par son nom</li>
+        <li> remove_node_name_in_group_name(self, node_name, group_name, sync=True) : supprime un noeud par son nom du group par son nom</li>
+        <li> get_nodes_in_group_by_name(self, group_name) : retourne les objets noeuds possédés par nom du groupe</li>
+        <li> get_nodes_names_in_group_by_name(self, group_name) : retourne les noms des noeuds possédés par nom du groupe</li>
+        <li> get_nodes_not_in_group_by_name(self, group_name) : retourne les objets noeuds non possédés par nom de groupe</li>
+        <li> get_nodes_names_not_in_group_by_name(self, group_name) : retourne les noms des noeuds non possédés par nom de groupe</li>
+    </ul>
+
+    <li>
+
+      <h4>nodes_and_groups.py :</h4>
+      <p>Contient les entitées Node, Group et NodeOrGroup</p>
+      <p>Node et Group heritent de NodeOrGroup</p>
+      <p>Importe :</p>
+      <ul>
+        <li> pathlib </li>
+        <li> yaml </li>
+        <li> YamlFileSyncer from yaml_file_syncer </li>
+      </ul>
+      <p>Entités :</p>
+      <ul>
+        <li>
+          <p>NodeOrGroup</p>
+          <p> Fonctions :</p>
+          <ul>
+            <li> read(self): ## </li>
+            <li> write(self): ## </li>
+          </ul>
+        </li>
+        <li>
+          <p>Group(NodeOrGroup)</p>
+          <p> Fonctions </p>
+          <ul>
+            <li> add_node(self, node) : ajoute le noeud si non possédé</li>
+            <li> remove_node(self, node) : retire le noeud si possédé</li>
+            <li> get_nodes_names_list : retourne la liste des noms de groupes</li>
+          </ul>
+        </li>
+        <li>
+          <p>Node(NodeOrGroup)</p>
+        </li>
+      </ul>
+
+    </li>
+
+    <li>
+      <h4>permissions_manager.py :</h4>
+      <p>Gère les permissions par fonctionnalitées</p>
+      <p>Importe :</p>
+      <ul>
+        <li>session from flask</li>
+        <li>hash_source</li>
+        <li>gettext from flask_babel</li>
+      </ul>
+      <p>Fonctions :</p>
+      <ul>
+        <li>set_permission(self,fx_permission_mgr_args) : defini la permission d'un utilisateur sur les noeuds et groupes</li>
+        <li>connect(self, fx_permission_mgr_args): autorise ou non l'utilisateur de se connecter</li>
+        <li>voir liste des permissions dans le fichier.</li>
+      </ul>
+    </li>
+
+    <li>
+      <h4>tasks_manager.py :</h4>
+      <p>Gère l'entitée Task et son modèle sqlite3</p>
+    </li>
+
+
+    <li>
+      <h4>user.py:</h4>
+      <p>Contient l'entitée User</p>
+    </li>
+
+
+
+    <li>
+      <h4>users_and_users_group_manager.py :</h4>
+      <p>Gère les utilisateurs et groupes d'utilisateurs</p>
+      <p>Importe :</p>
+      <ul>
+        <li>User from user</li>
+        <li>Users_group from users_groups_name</li>
+        <li>gettext from flask_babel</li>
+      </ul>
+      <p>Fonctions :</p>
+      <ul>
+        <li>add_user(self, name, password, su): défini un nouvel utilisateur.</li>
+        <li>get _user(self, name) : retourne l'utilisateur par son nom</li>
+      </ul>
+    </li>
+
+
+    <li>
+      <h4>users_group.py :</h4>
+      <p>Contient l'entité Users_Group</p>
+      <p>Importe :</p>
+      <ul>
+        <li>User from user</li>
+      </ul>
+      <p>Fonctions :</p>
+      <ul>
+        <li>set_group(self, name, users_dict) : initialise le dictionnaire d'utilisateur du group utilisateur</li>
+        <li>add_user(self, user) : ajoute un utilisateur au groupe</li>
+      </ul>
+    </li>
+
+
+
+    <li>
+      <h4>validator.py :</h4>
+      <p>Gère la validation de la saisie des formulaires</p>
+      <p>Importe :</p>
+      <ul>
+        <li>permissions_manager</li>
+        <li>gettext from flask_babel</li>
+      </ul>
+      <p>Fonctions :</p>
+      <ul>
+        <li>is_valid_node(self,hostname, fx_permission_mgr, fx_permission_mgr_args, fx_operation, fx_operation_args) : vérifie le nom du noeud saisie</li>
+        <li>is_valid_user(self, user, fx_permission_mgr, fx_permission_mgr_args, fx_operation, fx_operation_args) : vérifie le nom et le mot de passe utilisateur saisie </li>
+        <li>is_valid_name(self,name, fx_permission_mgr, fx_permission_mgr_args, fx_operation, fx_operation_args) : vérification générique de champ saisie</li>
+        <li>check_permission_and_run(self, fx_permission_mgr, fx_permission_mgr_args, fx_operation, fx_operation_args) : relaye le chainage des fonctions vers permissions_manager et fx_operation</li>
+        <li>__is_valid_hostname(self, hostname) : vérifie le format correct correspondant à un host</li>
+      </ul>
+    </li>
+    <li>yaml_dump_like_ansible.py</li>
+    <li>yaml_file_syncer</li>
+  </ul>
+
+
+  <h2>models:</h2>
+  <p>Dossier contenant la base de donnée et le model objet task.</p>
+
+  <h2>static:</h2>
+  <p>Dossier contenant les fichiers css, fonts, images, javascript, bootstrap.</p>
+
+  <h2>templates:</h2>
+  <p>Dossier contenant les fichiers html.</p>
+
+</body>
+</html>

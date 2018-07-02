@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <title>{% block title %}{% endblock %} - Data logging</title>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/controler.js') }}"></script>
+
+    <link rel="stylesheet" media="screen and (min-width: 1025px)" href="{{ url_for('static', filename='css/configured.laptop.css') }}" type="text/css" />
+    <link rel="stylesheet" media="screen and (min-width: 768px) and (max-width: 1024px)" href="{{ url_for('static', filename='css/configured.tablet.css') }}" type="text/css" />
+    <link rel="stylesheet" media="screen and (max-width: 767px)" href="{{ url_for('static', filename='css/configured.phablet.css') }}" type="text/css" />
+    {% block head %}{% endblock %}
+  </head>
+  <body id='body' onload="set_active_data('{{session['selected_group']}}', '{{session['selected_node']}}')">
+      <nav>
+        <h2>Log & Act</h2>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo";>
+        <ul>
+          <li>
+            <a href="{{ url_for('get_nodes') }}" class="btn btn-default" role="button">{{ _('node') }}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('get_groups') }}" class="btn btn-default" role="button">{{ _('nodes groups') }}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('playbook') }}" class="btn btn-default" role="button">{{ _('playbook') }}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('get_tasks') }}" class="btn btn-default" role="button">{{ _('task list') }}</a>
+          </li>
+          {% if session['username'] %}
+          <li id="disconnect" class="nav-item disconnect">
+            <a href="{{ url_for('disconnect') }}" class="btn btn-warning" role="button">{{ _('disconnect') }}</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+
+
+     <section class = 'main_page'>
+
+        <div class = 'show_message_error'>
+            {% if session['error_message'] %}
+              {% if session['error_message'] != '' %}
+                  <span id='alert' onclick="set_alert('')">{{_('close')}} [X] - {{_('Error')}} : {{session['error_message']}}</p>
+              {% endif %}
+            {% endif %}
+
+        </div>
+
+        {% block main_page %}
+          {% if session['username'] %}
+            {% block work %}
+            {% endblock %}
+          {% else %}
+              {% include 'login.html' %}
+          {% endif %}
+        {% endblock %}
+
+    </section>
+
+
+    <footer>
+      <div id = 'debug'>
+      </div>
+      Liberasys
+    </footer>
+
+   </body>
+
+
+
+</html>

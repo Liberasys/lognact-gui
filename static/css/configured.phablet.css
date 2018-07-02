@@ -1,0 +1,237 @@
+body
+{
+  background-color: white;
+}
+
+nav
+{
+  background-color: #262930;
+  color: white;
+  width: 100%;
+}
+
+nav h2
+{
+  text-align: center;
+  font-size: 1.2em;
+}
+
+nav img
+{
+  display: block;
+  width: 120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+nav ul,li
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.page{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.show_message_error
+{
+  background-color: red;
+  width: 100%;
+  color:white;
+  font-size: 0.9em;
+  padding-left: 30px;
+  opacity: 1;
+}
+
+.connection
+{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  border-style: solid;
+  border-radius: 20px;
+  padding: 15px;
+}
+
+.connection table
+{
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+}
+
+.connection td
+{
+  vertical-align: baseline;
+  margin: 0;
+  padding: 0;
+}
+
+.connection tr
+{
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.connection p
+{
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.table_configured{
+  height: 70%;
+}
+
+.table_configured .table_and_body{
+  height: 80%;
+  overflow-y: scroll;
+}
+
+.table_configured .table
+{
+  margin: 0;
+  padding: 0;
+  height: 10%;
+}
+
+.table_configured .table_title
+{
+  width: 99%;
+}
+
+.table_configured .table th
+{
+  text-align: center;
+  width: 25%;
+}
+
+.table_configured .table td
+{
+  text-align: center;
+  width: 25%;
+}
+
+
+.table_and_body
+{
+  width: 100%;
+  max-height: 60%;
+  margin: 0;
+  padding: 0;
+}
+
+.nodes_list
+{
+  min-height: 200px;
+  max-height: 200px;
+  width: 90%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+
+.stagging_menu
+{
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  float: right;
+}
+
+.nodes_vars
+{
+  min-height: 200px;
+  max-height: 200px;
+  width: 90%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  margin-bottom: 100px;
+}
+
+
+.set_overflow
+{
+  width: 100%;
+}
+
+.panel
+{
+margin: 0;
+padding: 0;
+}
+
+.menu {
+  padding-top: 12px;
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: center;
+}
+
+.glyphicon
+{
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.glyphicon-plus{
+  padding-left: 2px;
+  color: green;
+}
+
+.glyphicon-minus{
+  color: red;
+}
+
+.button_configured
+{
+  margin: 0;
+  padding: 0;
+  background-color: inherit;
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.button_configured .glyphicon
+{
+  margin: 0;
+  padding: 0;
+}
+
+.inline
+{
+  display: inline;
+}
+
+
+
+/* Footer */
+footer
+{
+  position:fixed;
+  bottom: 0;
+  background-color: #262930;
+  width: 100%;
+  height:80px;
+}
