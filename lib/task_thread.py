@@ -55,6 +55,10 @@ class TaskThread(threading.Thread):
             if thread_task_debug: print("PID", pid, "does not exists")
             return(None)
 
+    #
+    # NOTE : every function beginning with xt_ are called externally
+    #        the DB makes the link between task threads and flask threads
+    #
 
     def __xt_check_proc_exists(pid, command):
         proc_command = TaskThread.__xt_get_proc_command_by_pid(pid)
@@ -140,6 +144,27 @@ class TaskThread(threading.Thread):
             dbsession.commit()
             dbsession.close()
             return("", None)
+
+    def xt_update_disappeared_tasks(db_uri):
+        import sys
+        sys.path.append('./models')
+        from models import Task
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from datetime import datetime
+        #from flask_babel import gettext
+
+        engine = create_engine(db_uri, echo=True)
+        engine.echo = False
+        Session = sessionmaker(bind=engine)
+        dbsession = Session()
+
+        for instance in dbsession.query(Task).filter(Task.status == 'running').all():
+            if not TaskThread.__xt_check_proc_exists(instance.pid, instance.command):
+                instance.status = "disappeared"
+        dbsession.commit()
+        dbsession.close()
+
 
 
     def run(self):
@@ -309,26 +334,35 @@ if __name__ == "__main__":
     sys.path.append('./models')
     from models import Task, sqladb
 
+    db_uri_filename = 'test_db.sqlite'
+    db_uri_header = 'sqlite:///'
+    db_uri_flask_path = './'
+    db_uri_lib_path = '../'
+
+    db_flask_uri = db_uri_header + db_uri_lib_path + db_uri_header
+    db_lib_uri = db_uri_header + db_uri_flask_path + db_uri_header
+
+
     app = Flask(__name__)
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite/test_db.sqlite?check_same_thread=False'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../test_db.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_flask_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     #app.config['SQLALCHEMY_ECHO'] = True
 
     sqladb.app = app
     sqladb.init_app(app)
 
-    sqladb.drop_all()
+    #sqladb.drop_all()
     sqladb.create_all()
-
-    taskorm1 = Task('gautier', 'allright')
-    sqladb.session.add(taskorm1)
     sqladb.session.commit()
-    sqladb.session.close()
+    time.sleep(1)
 
-    task1 = TaskThread(db_uri='sqlite:///test_db.sqlite', username='user1', command="ping -mLQSKDJQMSLKj 1 127.0.0.1")
-    task2 = TaskThread(db_uri='sqlite:///test_db.sqlite', username='user2', command="ping -c 7 127.0.0.1")
-    task3 = TaskThread(db_uri='sqlite:///test_db.sqlite', username='user3', command="ping -c 15 127.0.0.1")
+    TaskThread.xt_update_disappeared_tasks(db_lib_uri)
+
+
+    task1 = TaskThread(db_uri=db_lib_uri, username='user1', command="ping -mLQSKDJQMSLKj 1 127.0.0.1")
+    task2 = TaskThread(db_uri=db_lib_uri, username='user2', command="ping -c 7 127.0.0.1")
+    task3 = TaskThread(db_uri=db_lib_uri, username='user3', command="ping -c 15 127.0.0.1")
 
     time.sleep(1)
     #print(task1.get_data_dict(), task1.get_data_dict(), task1.get_data_dict())
@@ -341,7 +375,7 @@ if __name__ == "__main__":
         out = ""
         for instance in sqladb.session.query(Task).filter(Task.status == "running"):
             #(errormsg, object) = kill_pid_command(instance.pid, instance.command)
-            (errormsg, object) = TaskThread.xt_kill_pid_command_and_commit('sqlite:///test_db.sqlite', instance.id)
+            (errormsg, object) = TaskThread.xt_kill_pid_command_and_commit(db_lib_uri, instance.id)
             out = out + "killed task " + str(instance.pid) + " : " + instance.command + " -- " + errormsg + "<br>"
         return(out)
 
@@ -349,11 +383,12 @@ if __name__ == "__main__":
     @app.route('/ctask', methods=['GET'])
     def create_task():
         assert request.method == 'GET'
-        taskn = TaskThread(db_uri='sqlite:///test_db.sqlite', username='user3', command="ping -c 15 127.0.0.1")
+        taskn = TaskThread(db_uri=db_lib_uri, username='user3', command="ping -c 15 127.0.0.1")
         return('OK')
 
     @app.route('/gtasks', methods=['GET'])
     def get_tasks():
+        TaskThread.xt_update_disappeared_tasks(db_lib_uri)
         out = ""
         out = out + "<style>\n"
         out = out + 'p {font-family:Consolas, monospace;}\n'
@@ -388,4 +423,5 @@ if __name__ == "__main__":
 
 
     app.run()
-    task1 = TaskThread(db_uri='sqlite:///test_db.sqlite', username='user1', command="ping -mLQSKDJQMSLKj 1 127.0.0.1")
+
+    print("===================RUN=================")
