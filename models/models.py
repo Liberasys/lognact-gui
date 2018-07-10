@@ -15,45 +15,39 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-sqladb = SQLAlchemy()
+import sys
+if 'flask' in sys.modules:
+    print("Model imported within Flask")
+    from sqlalchemy import Column, Integer, String, Text, DateTime
+    from flask_sqlalchemy import SQLAlchemy
+    sqladb = SQLAlchemy()
+    inherit = sqladb.Model
+else:
+    print("Model imported without Flask")
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy import Column, Integer, String, Text, DateTime
+    sqladb = declarative_base()
+    inherit = sqladb
 
-class Task(sqladb.Model):
+class Task(inherit):
     __tablename__ = 'task_list'
-    id         = sqladb.Column(sqladb.Integer,  primary_key=True)
-    user_id    = sqladb.Column(sqladb.Text,     unique = False)
-    pid        = sqladb.Column(sqladb.Integer,  unique = False)
-    command    = sqladb.Column(sqladb.Text,     unique = False)
-    output     = sqladb.Column(sqladb.Text,     unique = False)
-    status     = sqladb.Column(sqladb.Text,     unique = False) # running/ok/ko/disappeared
-    start_date = sqladb.Column(sqladb.DateTime, unique = False)
-    end_date   = sqladb.Column(sqladb.DateTime, unique = False)
-    #thread_ident = sqladb.Column(sqladb.DateTime, unique = False)
+    id         = Column(Integer,  unique=True, autoincrement=True, primary_key=True)
+    username   = Column(Text,     unique=False)
+    pid        = Column(Integer,  unique=False)
+    command    = Column(Text,     unique=False)
+    output     = Column(Text,     unique=False)
+    status     = Column(Text,     unique=False) # running/ok/ko/disappeared
+    start_date = Column(DateTime, unique=False)
+    end_date   = Column(DateTime, unique=False)
 
-    def __init__(self, id, user_id, pid, command, status = 'running', start_date = datetime.now()):
-        self.id = id
-        self.user_id = user_id
-        self.pid = pid
+    def __init__(self, username, command):
+        # self.id is generated
+        self.username = username
+        self.pid = None
         self.command = command
-        self.output = ""
-        self.status = status
-        self.start_date = start_date
+        self.output = ''
+        self.status = 'running'
+        self.start_date = datetime.now()
         self.end_date = None
-        #self.thread_ident = thread_ident
-
-
-#    def __repr__(self):
-#        return {
-#                'id':self.id,
-#                'user_id':self.user_id,
-#                'pid':self.pid,
-#                'command':self.command,
-#                'output':self.output,
-#                'status':self.status,
-#                'start_date':self.start_date,
-#                'end_date': self.end_date
-#                }
