@@ -14,34 +14,31 @@ class TaskThread(threading.Thread):
 
     def __init__(self, db_uri = None, username = None, command = None):
         threading.Thread.__init__(self)
-        self.__dburi = db_uri
-        self.__dbsession = None
-        self.__ormtask = None
-        self.__mutex_taken = False
-        #self.__waskilled = False
-        #self.__thread_running = False
-        self.start()
-
+        self.__db_uri = db_uri
+        self.__username = username
+        self.__command = command
         if db_uri == None or username == None or command == None:
             raise ValueError('Cannot start a thread, not enough information.')
+        self.start()
 
+
+    def __get_db_session(db_uri):
         import sys
         sys.path.append('./models')
         from models import Task
         from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
-
-        engine = create_engine(self.__dburi, echo=True)
+        engine = create_engine(db_uri, echo=False, connect_args={'timeout': 15})
         engine.echo = False
         Session = sessionmaker(bind=engine)
-        self.__dbsession = Session()
+        dbsession = Session()
+        return(dbsession)
 
-        #for instance in self.__dbsession.query(Task).all():
-        #    print(instance.id, instance.start_date, instance.username, instance.command)
 
-        self.__ormtask = Task(username, command)
-        self.__dbsession.add(self.__ormtask)
-        self.__dbsession.commit()
+    ###########################################################################
+    # NOTE : Every function beginning with xt_ are called externally.         #
+    #        The DB makes the link between task threads and flask threads.    #
+    ###########################################################################
 
 
     def __xt_get_proc_command_by_pid(pid):
@@ -55,10 +52,6 @@ class TaskThread(threading.Thread):
             if thread_task_debug: print("PID", pid, "does not exists")
             return(None)
 
-    #
-    # NOTE : every function beginning with xt_ are called externally
-    #        the DB makes the link between task threads and flask threads
-    #
 
     def __xt_check_proc_exists(pid, command):
         proc_command = TaskThread.__xt_get_proc_command_by_pid(pid)
@@ -96,18 +89,13 @@ class TaskThread(threading.Thread):
             if thread_task_debug: print("Killed : Process", pid_text, ":", command_text)
             return("", None)
 
+
     def xt_kill_pid_command_and_commit(db_uri, id):
         import sys
         sys.path.append('./models')
         from models import Task
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker
         from datetime import datetime
         #from flask_babel import gettext
-
-        engine = create_engine(db_uri, echo=True)
-        engine.echo = False
-        Session = sessionmaker(bind=engine)
 
         if id == None:
             id_text = "None"
@@ -115,7 +103,7 @@ class TaskThread(threading.Thread):
             id_text = str(id)
 
         # A small DB session in order to get Task ORM object
-        dbsession = Session()
+        dbsession = TaskThread.__get_db_session(db_uri)
         taskorm = dbsession.query(Task).filter(Task.id == id).one()
         dbsession.close()
         # BUG in babel ? cannot use getttext in this context
@@ -124,20 +112,20 @@ class TaskThread(threading.Thread):
         #   KeyError: 'babel'
         #return((gettext("Unable to kill task id %(id)s, not found.", id=id_text), None))
         if taskorm == None:
-            dbsession.close()
             return(("Unable to kill task id " + id_text + ", not found.", None))
 
         kill_result = TaskThread.__xt_kill_pid_command(taskorm.pid, taskorm.command)
         if  kill_result != ("", None):
             return(kill_result)
         else:
+            # Wait for the thread termination
             while(TaskThread.__xt_check_proc_exists(taskorm.pid, taskorm.command)):
                 time.sleep(0.2)
             time.sleep(0.5)
 
             # We have to open a new DB session here because the ORM object was
             # created in an other thread and have just been released.
-            dbsession = Session()
+            dbsession = TaskThread.__get_db_session(db_uri)
             taskorm = dbsession.query(Task).filter(Task.id == id).one()
             taskorm.status = "killed"
             taskorm.end_date = datetime.now()
@@ -145,22 +133,16 @@ class TaskThread(threading.Thread):
             dbsession.close()
             return("", None)
 
+
     def xt_update_disappeared_tasks(db_uri):
         import sys
         sys.path.append('./models')
         from models import Task
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker
-        from datetime import datetime
-        #from flask_babel import gettext
 
-        engine = create_engine(db_uri, echo=True)
-        engine.echo = False
-        Session = sessionmaker(bind=engine)
-        dbsession = Session()
-
+        dbsession = TaskThread.__get_db_session(db_uri)
         for instance in dbsession.query(Task).filter(Task.status == 'running').all():
-            if not TaskThread.__xt_check_proc_exists(instance.pid, instance.command):
+            if not TaskThread.__xt_check_proc_exists(instance.pid, instance.command) \
+              and instance.end_date == None:
                 instance.status = "disappeared"
         dbsession.commit()
         dbsession.close()
@@ -168,158 +150,78 @@ class TaskThread(threading.Thread):
 
 
     def run(self):
-        # Run the process and get its PID
-        self.__get_mutex()
-        #self.__ormtask.status = 'running'
-        #self.__ormtask.start_date = datetime.now()
-        #self.__thread_running = True
-        process = Popen(self.__ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, close_fds=True, preexec_fn=os.setsid)
-        self.__ormtask.pid = process.pid
+        # This is the thread in which we spawn a process and then we
+        #   poll the process stdout/stderr.
+        # Each time we can close the DB session we do it in order to
+        #   free the sqlite DB.
+        import time
+        dbsession = TaskThread.__get_db_session(self.__db_uri)
+        ormtask = Task(self.__username, self.__command)
+        dbsession.add(ormtask)
+        dbsession.commit()
 
-        # Loop on stderr+stdout lines of the process
-        if thread_task_debug: print("Started process:", self.__ormtask.command, "-- pid", self.__ormtask.pid)
-        self.__dbsession.commit()
-        self.__release_mutex()
+        # Run the process and get its PID
+        process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, close_fds=True, preexec_fn=os.setsid)
+        ormtask.start_date = datetime.now()
+        ormtask.status = "running"
+        ormtask.pid = process.pid
+        if thread_task_debug: print("Started process:", ormtask.command, "-- pid", ormtask.pid)
+        ormtask_id = ormtask.id
+        dbsession.commit()
+        dbsession.close()
 
         # poll its stdout/sterr
+        last_commit_epoch = time.time()
+        tmpoutbuf = ""
         while True:
+
+            # Each second, we oppen a DB session and commit the
+            # process output buffer.
+            if ((time.time() - last_commit_epoch) > 1) :
+                dbsession = TaskThread.__get_db_session(self.__db_uri)
+                ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+                ormtask.output = ormtask.output + tmpoutbuf
+                dbsession.commit()
+                dbsession.close()
+                tmpoutbuf = ""
+                last_commit_epoch = time.time()
+
+            # In any case we poll a line from process stdout/stderr
             line = process.stdout.readline()
             line = line.rstrip()
-            if line != "":
-                if thread_task_debug: print("    Stdout line:", line)
-                self.__get_mutex()
-                self.__ormtask.output = self.__ormtask.output + line.decode("utf-8") + "\n"
-                self.__dbsession.commit()
-                self.__release_mutex()
+
+            # If the readline returns None, then the process is ended
+            #   and we get out of the polling loop
             if not line:
                 break
+
+            # If we have got something, we add it to the buffer of data to
+            #   be commitied in db.
+            if line != "":
+                if thread_task_debug: print("    Stdout line:", line)
+                tmpoutbuf = tmpoutbuf + line.decode("utf-8") + "\n"
+
+        # Be shure that process exited
         process.wait()
 
         # Now process is ended, we set the status
         if thread_task_debug: print("Process return code:", process.returncode)
-        self.__get_mutex()
-        self.__ormtask.output = self.__ormtask.output + "-- Return code: " + str(process.returncode)
-        self.__ormtask.end_date = datetime.now()
-        #if self.__waskilled != True:
-        if self.__ormtask.status != "killed":
+        dbsession = TaskThread.__get_db_session(self.__db_uri)
+        ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+        ormtask.output = ormtask.output + "-- Return code: " + str(process.returncode)
+        ormtask.end_date = datetime.now()
+
+        if ormtask.status != "killed":
             if process.returncode != 0:
-                self.__ormtask.status = "ko"
-                if thread_task_debug: print("Process", self.__ormtask.pid, "ended KO")
+                ormtask.status = "ko"
+                if thread_task_debug: print("Process", ormtask.pid, "ended KO")
             else:
-                self.__ormtask.status = "ok"
-                if thread_task_debug: print("Process", self.__ormtask.pid, "ended OK")
+                ormtask.status = "ok"
+                if thread_task_debug: print("Process", ormtask.pid, "ended OK")
             #self.__thread_running = False
-        self.__dbsession.commit()
-        self.__dbsession.close()
-        self.__release_mutex()
 
-
-    #def kill(self):
-    #    pid = self.get_pid()
-    #    command = self.get_command()
-
-    #    if command == None:
-    #        command_text = "None"
-    #    else:
-    #        command_text = command
-
-    #    if pid == None:
-    #        pid_text = "None"
-    #    else:
-    #        pid_text = str(pid)
-
-    #    if self.get_status() != "running":
-    #        return(gettext("Unable to kill process id %(pid)s : %(command)s. Process was not running.",
-    #                       pid=str(pid_text),
-    #                       command=command_text),
-    #               None)
-
-    #    self.set_waskilled()
-    #    (error_text, data) = TaskThread.__xt_kill_pid_command(pid, command)
-    #    if error_text != "":
-    #        return(error_text, data)
-    #    elif self.__thread_running == True:
-    #        self.join()
-    #    else:
-    #        while(TaskThread.__xt_check_proc_exists(pid, command)):
-    #            time.sleep(0.2)
-    #        time.sleep(0.5)
-    #    self.__thread_running = False
-    #    self.set_end_killed()
-    #    self.__dbsession.commit()
-    #    self.__dbsession.close()
-    #    return("", None)
-
-
-    #def get_pid(self):
-    #    self.__get_mutex()
-    #    pid = copy(self.__ormtask.pid)
-    #    self.__release_mutex()
-    #    return(pid)
-
-    #def get_command(self):
-    #    self.__get_mutex()
-    #    command = copy(self.__ormtask.command)
-    #    self.__release_mutex()
-    #    return(command)
-
-    #def get_status(self):
-    #    self.__get_mutex()
-    #    status = copy(self.__ormtask.status)
-    #    self.__release_mutex()
-    #    return(status)
-
-    def __set_end_ok(self): self.__set_end("ok")
-    def __set_end_ko(self): self.__set_end("ko")
-    #def set_end_killed(self): self.__set_end("killed")
-    def set_end_disappeared(self): self.__set_end("disappeared")
-    def __set_end(self, status):
-        self.__get_mutex()
-        self.__ormtask.status = status
-        self.__ormtask.end_date = datetime.now()
-        self.__dbsession.commit()
-        self.__release_mutex()
-        if thread_task_debug: print("Set task status of PID", self.__ormtask.pid, "to:", status)
-
-    def get_data_dict(self):
-        out_data = {}
-        self.__get_mutex()
-        out_data['id'] = self.__ormtask.id
-        out_data['username'] = self.__ormtask.username
-        out_data['pid'] = self.__ormtask.pid
-        out_data['command'] = self.__ormtask.command
-        out_data['output'] = self.__ormtask.output
-        out_data['status'] = self.__ormtask.status
-        out_data['start_date'] = self.__ormtask.start_date
-        out_data['end_date'] = self.__ormtask.end_date
-        self.__release_mutex()
-        return(out_data)
-
-#    def set_waskilled(self):
-#        self.__get_mutex()
-#        self.__waskilled = True
-#        self.__release_mutex()
-
-    def __get_mutex(self):
-        """ Tries to get the mutex on the data """
-        mutex_timeout = 5
-        start_epoch = time.time()
-        got_mutex = False
-        while ((time.time() - start_epoch) < mutex_timeout) and \
-              (got_mutex == False):
-            if self.__mutex_taken == True:
-                if thread_task_debug: print("Mutex busy...")
-            else:
-                got_mutex = True
-                self.__mutex_taken = False
-                if thread_task_debug: print("Got mutex.")
-            time.sleep(0.2)
-        return got_mutex
-
-    def __release_mutex(self):
-        """ Releases the mutex on the data """
-        self.__mutex_taken = False
-        if thread_task_debug: print("Mutex released.")
+        dbsession.commit()
+        dbsession.close()
 
 
 
@@ -334,19 +236,19 @@ if __name__ == "__main__":
     sys.path.append('./models')
     from models import Task, sqladb
 
-    db_uri_filename = 'test_db.sqlite'
+    db_uri_filename = 'test_db.sqlite?timeout=15'
     db_uri_header = 'sqlite:///'
     db_uri_flask_path = './'
     db_uri_lib_path = '../'
 
-    db_flask_uri = db_uri_header + db_uri_lib_path + db_uri_header
-    db_lib_uri = db_uri_header + db_uri_flask_path + db_uri_header
+    db_flask_uri = db_uri_header + db_uri_lib_path + db_uri_filename
+    db_lib_uri = db_uri_header + db_uri_flask_path + db_uri_filename
 
 
     app = Flask(__name__)
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite/test_db.sqlite?check_same_thread=False'
     app.config['SQLALCHEMY_DATABASE_URI'] = db_flask_uri
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     #app.config['SQLALCHEMY_ECHO'] = True
 
     sqladb.app = app
@@ -388,7 +290,6 @@ if __name__ == "__main__":
 
     @app.route('/gtasks', methods=['GET'])
     def get_tasks():
-        TaskThread.xt_update_disappeared_tasks(db_lib_uri)
         out = ""
         out = out + "<style>\n"
         out = out + 'p {font-family:Consolas, monospace;}\n'

@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
+from datetime import datetime, date
 
 import sys
 if 'flask' in sys.modules:
@@ -48,6 +48,6 @@ class Task(inherit):
         self.pid = None
         self.command = command
         self.output = ''
-        self.status = 'running'
-        self.start_date = datetime.now()
+        self.status = None
+        self.start_date = None
         self.end_date = None
