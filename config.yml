@@ -9,3 +9,4 @@ host: 127.0.0.1
 inventory_file_subpath: inventories/inventory.yml
 password: ''
 port: 5000
+db_path: './db.sqlite'

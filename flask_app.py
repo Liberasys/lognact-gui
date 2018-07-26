@@ -28,7 +28,7 @@ from datetime import datetime
 import sys
 sys.path.append('./lib')
 sys.path.append('./models')
-from tasks_manager import Task_manager
+from tasks_manager import Tasks_manager
 from inventory_manager import Inventory
 from users_and_users_groups_manager import Users_and_users_groups_manager
 from permissions_manager import Permissions_manager
@@ -45,9 +45,13 @@ class Manage():
         self.port = conf['port']
         self.debug_mode = conf['debug_mode']
 
+        self.db_uri = 'sqlite:///' + conf['db_path']
+        self.lib_db_uri = 'sqlite:///' + conf['db_path']
+
+
         # use Flask as app and set app configuration :
         self.app = Flask(__name__)
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///models/sqlite_file/bdd.dl'
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.db_uri
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
         self.app.config['BABEL_DEFAULT_LOCALE'] = 'en'
         # self.app.config['SECRET_KEY'] = os.urandom(16)
@@ -90,7 +94,12 @@ class Manage():
         self.users_and_users_groups_manager = Users_and_users_groups_manager()
         self.manage_validator = Validator()
         self.permissions_manager = Permissions_manager(self.users_and_users_groups_manager, self.inventory_manager)
-        self.task_manager = Task_manager(sqladb)
+        self.tasks_manager = Tasks_manager(self.lib_db_uri)
+
+        self.tasks_manager.update_disappeared_tasks()
+
+        ### XXX tests
+        task3 = self.tasks_manager.create_task(username='user3', command="ping -c 45 127.0.0.1")
 
 
         # set global vars (lang):
@@ -859,8 +868,18 @@ class Manage():
         #task_list
         @self.app.route('/task_list/')
         def get_tasks():
-            tuple_result = None
-            return render_template('task_list.html', results=('', None))
+            session['error_message'] = ''
+            try:
+                (errormsg, tasks_dict) = self.manage_validator.check_permission_and_run(
+                        self.permissions_manager.get_tasks,
+                        session['username'],
+                        self.tasks_manager.read_tasks,
+                        [None]
+                        )
+                if errormsg != '': session['error_message'] += errormsg
+            except:
+                pass
+            return render_template('task_list.html', results=(tasks_dict))
 
         @self.app.route('/task_list/add_task/')
         def add_task():
@@ -874,7 +893,29 @@ class Manage():
             return render_template('task_list.html', results=('', None))
 
 
-        @self.app.route('/task_list/kill_task/')
-        def kill_task():
-            tuple_result = None
-            return render_template('task_list.html', results=('', None))
+        @self.app.route('/task_list/kill_task/<int:task_id>', methods=['GET'])
+        def kill_task(task_id):
+            session['error_message'] = ''
+            try:
+
+                (errormsg, tasks_dict) = self.manage_validator.check_permission_and_run(
+                        self.permissions_manager.kill_task,
+                        session['username'],
+                        self.tasks_manager.kill_task,
+                        [int(task_id)]
+                        )
+                if errormsg != '': session['error_message'] += errormsg
+            except:
+                pass
+
+            try:
+                (errormsg, tasks_dict) = self.manage_validator.check_permission_and_run(
+                        self.permissions_manager.get_tasks,
+                        session['username'],
+                        self.tasks_manager.read_tasks,
+                        [None]
+                        )
+                if errormsg != '': session['error_message'] += errormsg
+            except:
+                pass
+            return render_template('task_list.html', results=(tasks_dict))

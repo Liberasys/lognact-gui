@@ -102,6 +102,8 @@ class TaskThread(threading.Thread):
         else:
             id_text = str(id)
 
+        if thread_task_debug: print("KILL : xt_kill_pid_command_and_commit process id:", id_text)
+
         # A small DB session in order to get Task ORM object
         dbsession = TaskThread.__get_db_session(db_uri)
         taskorm = dbsession.query(Task).filter(Task.id == id).one()
@@ -155,6 +157,9 @@ class TaskThread(threading.Thread):
         # Each time we can close the DB session we do it in order to
         #   free the sqlite DB.
         import time
+        import sys
+        sys.path.append('./models')
+        from models import Task
         dbsession = TaskThread.__get_db_session(self.__db_uri)
         ormtask = Task(self.__username, self.__command)
         dbsession.add(ormtask)

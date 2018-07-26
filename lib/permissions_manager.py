@@ -24,7 +24,7 @@ from flask_babel import gettext
 
 class Permissions_manager():
 
-    def __init__(self,user_manager, inventory):
+    def __init__(self, user_manager, inventory):
         self.user_manager = user_manager
         self.inventory = inventory
         self.permission_dict = {}

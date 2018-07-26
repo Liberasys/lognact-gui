@@ -63,7 +63,14 @@ class Validator:
             if fx_operation is not None:
                 if fx_operation_args[0] is not None:
                     if len(fx_operation_args) == 1:
-                        return(fx_operation(fx_operation_args[0]))
+                        print("1 arg")
+                        print(fx_operation, fx_operation_argsn)
+                        #return(fx_operation(fx_operation_args[0]))
+                        (message, result) = fx_operation(fx_operation_args[0])
+
+                        print("fx")
+                        print('fx:', message, result)
+                        return((message, result))
                     elif  len(fx_operation_args) == 2:
                         return(fx_operation(
                                             fx_operation_args[0],
@@ -76,9 +83,10 @@ class Validator:
                                             fx_operation_args[2]
                                             ))
                     else:
-                        print('error')
+                        print('!!!!!!!!!!!!! function fx_operation has bad number arguments in check_permission_and_run !!!!!!!!!!')
                 else:
                     return(fx_operation())
+            print("!!!!!!!!!!!!! function is None in check_permission_and_run !!!!!!!!!!!!")
             return('', None)
 
     def __is_valid_hostname(self, hostname):

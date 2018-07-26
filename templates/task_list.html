@@ -1,8 +1,15 @@
 {% extends 'template.html' %}
 {% block title %} {{_('task list')}} {% endblock %}
 {% block work %}
-<section class = "page_tasks_list">
+{% set (tasks_list) = results %}
+{% set icon_mapping = {
+                      'running': 'glyphicon glyphicon-refresh',
+                      'ok': 'glyphicon glyphicon-ok',
+                      'ko': 'glyphicon glyphicon-exclamation-sign',
+                      'disappeared': 'glyphicon glyphicon-question-sign'
+                      } %}
 
+<section class = "page_tasks_list">
 
 <div class= "up">
 
@@ -31,88 +38,22 @@
             <th>{{_('End')}}</th>
             <th>{{_('Kill task')}}</th>
           </tr>
+          {% for task_id, task_data in tasks_list.items() %}
           <tr>
             <td class='col1'>1</td>
-            <td>1258</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-repeat"></td>
-            <td>26/06/2018 11:00:00</td>
+            <td>{{task_id}}</td>
+            <td>{{task_data.username}}</td>
+            <td>{{task_data.command}}</td>
+            <td><span  class="{{ icon_mapping[task_data.status] }}"></td>
+            <td>{{task_data.start_date}}</td>
+            <td>{{task_data.end_date}}</td>
+            {% if task_data.status == 'running' %}
+            <td><a type="button" class="btn btn-danger" href="/task_list/kill_task/{{ task_id }}">{{_('kill')}}</a></td>
+            {% else %}
             <td></td>
-            <td>
-              <a type="button" class="btn btn-danger" href="#">{{_('Kill task')}}</a>
+            {% endif %}
           </tr>
-          <tr>
-            <td class='col1'>2</td>
-            <td>1259</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-ok"></td>
-            <td>26/06/2018 11:00:00</td>
-            <td>26/06/2018 11:50:00</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td class='col1'>3</td>
-            <td>1220</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-warning-sign"></td>
-            <td>26/06/2018 11:30:00</td>
-            <td>26/06/2018 11:50:00</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td class='col1'>4</td>
-            <td>1221</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-exclamation-sign"></td>
-            <td>26/06/2018 11:30:00</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td class='col1'>1</td>
-            <td>1258</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-repeat"></td>
-            <td>26/06/2018 11:00:00</td>
-            <td></td>
-            <td>
-              <a type="button" class="btn btn-danger" href="#">{{_('Kill task')}}</a>
-          </tr>
-          <tr>
-            <td class='col1'>2</td>
-            <td>1259</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-ok"></td>
-            <td>26/06/2018 11:00:00</td>
-            <td>26/06/2018 11:50:00</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td class='col1'>3</td>
-            <td>1220</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-ok"></td>
-            <td>26/06/2018 11:30:00</td>
-            <td>26/06/2018 11:50:00</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td class='col1'>4</td>
-            <td>1221</td>
-            <td>user1</td>
-            <td>command..</td>
-            <td><span  class="glyphicon glyphicon-exclamation-sign"></td>
-            <td>26/06/2018 11:30:00</td>
-            <td></td>
-            <td></td>
-          </tr>
+          {% endfor %}
         </table>
       </div>
     </div>
