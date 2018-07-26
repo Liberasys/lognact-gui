@@ -34,10 +34,10 @@ function select_group(suffix, name) {
     id = name + suffix;
     selected_group = name;
     if (document.getElementById(old_selected_group)) {
-        document.getElementById(old_selected_group).style.color = "black";
+        document.getElementById(old_selected_group).style.cssText = "color: black; background-color: white;";
     }
     old_selected_group = id;
-    document.getElementById(id).style.color = "red";
+    document.getElementById(id).style.cssText = "color: red; background-color: #F5F5F5;";
     if (suffix == '_from_groups_list'){
       callAjax("/nodes_groups/set_active_group/" + name , '/nodes_groups/');
     }
@@ -63,10 +63,10 @@ function select_node(suffix, name) {
   id = name + suffix;
   selected_node_from_nodes_list = name;
     if (document.getElementById(old_selected_node_from_nodes_list)) {
-        document.getElementById(old_selected_node_from_nodes_list).style.color = "black";
+        document.getElementById(old_selected_node_from_nodes_list).style.cssText = "color: black; background-color: white;";
     }
     old_selected_node_from_nodes_list = id;
-    document.getElementById(id).style.color = "red";
+    document.getElementById(id).style.cssText = "color: red; background-color: #F5F5F5";
     if (suffix == '_from_nodes_list'){
       callAjax("/nodes/set_active_node/" + name , '/nodes/');
     }
@@ -83,10 +83,10 @@ function select_node_from_group(suffix, name) {
   id = name + suffix;
   selected_node_from_group = name;
     if (document.getElementById(old_selected_node_from_group)) {
-        document.getElementById(old_selected_node_from_group).style.color = "black";
+        document.getElementById(old_selected_node_from_group).style.cssText = "color: black; background-color: white;";
     }
     old_selected_node_from_group = id;
-    document.getElementById(id).style.color = "red";
+    document.getElementById(id).style.cssText = "color: red; background-color: #F5F5F5";
 }
 
 // delete the selected group
