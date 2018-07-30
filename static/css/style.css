@@ -1,3 +1,17 @@
+/* Feuille de style créée dans le but de simplifier le changement de thème */
+/* Attention, tout changement dans la partie THEME affectera l'apparence
+   des diverses fonctionnalités sur l'intégralité de l'interface. */
+
+/* THEME */
+
+/*
+Aide à la modification :
+color : couleur du texte.
+background-color : couleur de fond.
+border-color : couleur du contour.
+N'utilisez que des couleurs rédigés en HTML ( format HEX ou hexadécimal )
+*/
+
 /* Couleur de la Barre de Navigation */
 nav {
   background-color: #262930;
@@ -6,12 +20,28 @@ nav {
 body {
   background-color: #fff;
 }
-/* Couleurs Cadres (En-tête et Bordures) */
+/* Couleurs Boxs Bleues (En-tête) */
 .panel-info>.panel-heading {
   color: #31708f;
   background-color: #d9edf7;
   border-color: #bce8f1;
  }
+/* Couleurs Boxs Bleues Intégrale */
+.container .panel {
+  background-color: #fff;
+  border-color: #bce8f1;
+}
+/* Couleurs Boxs Jaunes (Output) (En-tête) */
+ .panel-warning>.panel-heading {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #faebcc;
+ }
+ /* Couleurs Boxs Jaunes (Output) Intégrale */
+ .panel-warning {
+  background-color: #fff;
+  border-color: #faebcc;
+}
 /* Couleurs Boutons de la Barre de Navigation  */
 nav .btn-default {
   color: #333;
@@ -19,15 +49,26 @@ nav .btn-default {
   border-color: #ccc;
  }
 /* Couleurs Bouton "Disconnect" */
-.btn-warning {
+nav .btn-warning {
   color: #fff;
   background-color: #f0ad4e;
   border-color: #eea236;
  }
-/* configurated laptop */
-.search .btn-default {
-  margin-left: 5px;
+/* Couleurs Bouton "run nodes" page playbook */
+.btn-info {
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
 }
+/* Couleurs Bouton "run group" page playbook */
+.left .panel .panel-body .btn-warning {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+}
+
+/* CORRECTIONS STYLE */
+/* Corrections configurated laptop */
 @media screen and (min-width: 1025px) {
  .down .tasks_log {
    height: 89%;
@@ -45,7 +86,7 @@ nav .btn-default {
  }
  .page_tasks_list .table_configured {
   overflow-y: scroll;
-  height: 73%;
+  height: 70%;
  }
  .page_tasks_list .up {
   min-width: 100%;
@@ -69,8 +110,58 @@ nav .btn-default {
  .tasks_list {
   height: 305px;
  }
+ .table_and_body {
+    width: 100%;
+    max-height: 65%;
+    margin: 0;
+    padding: 0;
+ }
+ .search {
+    margin: 5px;
+ }
+ .table_configured .table_title {
+    width: 100%;
+ }
+ .groups_list {
+    height: 100%;
+    min-width: 400px;
+    width: 47%;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+ }
+ .groups_vars {
+    height: 100%;
+    min-width: 400px;
+    width: 44%;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+ }
+ .page_nodes_groups .nodes_list {
+  height: 100%;
+  min-width: 350px;
+  width: 44%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .nodes_group_list {
+  height: 100%;
+  min-width: 350px;
+  width: 44%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .page_nodes_groups .table_and_body {
+  width: 100%;
+  max-height: 70%;
+  margin: 0;
+  padding: 0;
+ }
 }
-/* configurated tablet */
+/* Corrections configurated tablet */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
 .add_and_delete a {
   display: flex;
@@ -135,4 +226,157 @@ nav .btn-default {
   height: 88.5%;
   overflow-y: scroll;
  }
+}
+
+@media screen and (max-width: 767px) {
+ nav {
+  height: 274px;
+ }
+ nav .btn-default {
+  margin: 2px 5px;
+  font-size: 16px;
+ }
+ nav .btn-warning {
+  margin: 2px 5px;
+  font-size: 16px;
+ }
+ nav ul {
+  margin-top: 5px;
+ }
+ nav h2 {
+  text-align: center;
+  font-size: 1.2em;
+  margin-top: 0;
+  padding-top: 5px;
+ }
+ .tasks_list .panel {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  border: 2px solid #bce8f1;
+ }
+ .tasks_list .panel-info>.panel-heading {
+    border-bottom: 2px solid #bce8f1;
+ }
+ .panel-warning {
+  border: 2px solid #faebcc;
+  margin-bottom: 100px;
+ }
+ .search table {
+  margin-left: 5px;
+ }
+ .search .btn-default {
+  margin: 5px;
+ }
+ .page_playbooks .container {
+  padding: 0;
+ }
+ .page_playbooks .container .panel {
+  border-radius: 0;
+  border: 2px solid #bce8f1;
+ }
+ .menu {
+  padding-top: 12px;
+  text-align: center;
+  width: 32px;
+ }
+ .nodes_list {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .groups_list {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .nodes_vars {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  margin-bottom: 100px;
+ }
+ .groups_vars {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .nodes_group_list {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  margin-bottom: 100px;
+ }
+ .page_nodes .table_and_body {
+  width: 100%;
+  max-height: 55%;
+  margin: 0;
+  padding: 0;
+ }
+ .page_nodes_groups .table_and_body {
+  width: 100%;
+  max-height: 55%;
+  margin: 0;
+  padding: 0;
+ }
+ .page_nodes_groups .nodes_list {
+  min-height: 200px;
+  max-height: 200px;
+  width: 100%;
+  height: 40%;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+ }
+ .down {
+  display: inline-flex;
+  width: 100%;
+ }
+ .down .nodes_list {
+  width: 95%;
+ }
+ .down .nodes_group_list {
+  width: 95%;
+ }
+ .down .add_and_delete {
+  width: 60px;
+  text-align: center;
+  padding-top: 60px;
+ }
+}
+/* Autres */
+.search .btn-default {
+  margin-left: 5px;
+}
+.glyphicon-exclamation-sign {
+  color: #cc1506;
+}
+.glyphicon-question-sign {
+  color: #f39c12;
+}
+.glyphicon-ok {
+  color:#27ae60;
+}
+.glyphicon-refresh {
+  color: #336bff;
 }
