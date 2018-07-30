@@ -29,6 +29,9 @@ nav .btn-default {
   margin-left: 5px;
 }
 @media screen and (min-width: 1025px) {
+ .down .tasks_log {
+   height: 89%;
+ }
  .add_and_delete a {
   font-size: 5em;
  }
@@ -47,7 +50,7 @@ nav .btn-default {
  .page_tasks_list .up {
   min-width: 100%;
   height: 40%;
-  margin-bottom: 10px;
+  margin-bottom: 35px;
  }
  .page_tasks_list .down {
   margin-top: 0;
@@ -58,7 +61,7 @@ nav .btn-default {
  }
  .tasks_log .table_and_body {
   width: 100%;
-  max-height: 91%;
+  max-height: 90%;
   margin: 0;
   padding: 0;
   overflow-y: scroll;
