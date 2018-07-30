@@ -8,7 +8,7 @@ import signal
 from subprocess import Popen, PIPE, STDOUT
 #from flask_babel import gettext
 
-thread_task_debug = False
+thread_task_debug = True
 
 class TaskThread(threading.Thread):
 
@@ -123,16 +123,19 @@ class TaskThread(threading.Thread):
             # Wait for the thread termination
             while(TaskThread.__xt_check_proc_exists(taskorm.pid, taskorm.command)):
                 time.sleep(0.2)
-            time.sleep(0.5)
+            time.sleep(2)
+            if thread_task_debug: print("Process", taskorm.pid, "ended after kill.")
 
             # We have to open a new DB session here because the ORM object was
             # created in an other thread and have just been released.
+            if thread_task_debug: print("Process", taskorm.pid, ": updating status in DB.")
             dbsession = TaskThread.__get_db_session(db_uri)
             taskorm = dbsession.query(Task).filter(Task.id == id).one()
             taskorm.status = "killed"
             taskorm.end_date = datetime.now()
             dbsession.commit()
             dbsession.close()
+            if thread_task_debug: print("Process", taskorm.pid, ": status updated in DB.")
             return("", None)
 
 
@@ -206,6 +209,12 @@ class TaskThread(threading.Thread):
                 if thread_task_debug: print("    Stdout line:", line)
                 tmpoutbuf = tmpoutbuf + line.decode("utf-8") + "\n"
 
+        # We commit last output from Task
+        dbsession = TaskThread.__get_db_session(self.__db_uri)
+        ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+        ormtask.output = ormtask.output + tmpoutbuf
+        tmpoutbuf = ""
+
         # Be shure that process exited
         process.wait()
 
@@ -224,6 +233,8 @@ class TaskThread(threading.Thread):
                 ormtask.status = "ok"
                 if thread_task_debug: print("Process", ormtask.pid, "ended OK")
             #self.__thread_running = False
+        else:
+            if thread_task_debug: print("Process", ormtask.pid, "killed")
 
         dbsession.commit()
         dbsession.close()

@@ -45,8 +45,8 @@ class Manage():
         self.port = conf['port']
         self.debug_mode = conf['debug_mode']
 
-        self.db_uri = 'sqlite:///' + conf['db_path']
-        self.lib_db_uri = 'sqlite:///' + conf['db_path']
+        self.db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
+        self.lib_db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
 
 
         # use Flask as app and set app configuration :
@@ -887,17 +887,26 @@ class Manage():
             return render_template('task_list.html', results=('', None))
 
 
-        @self.app.route('/task_list/get_task/')
-        def get_task():
-            tuple_result = None
-            return render_template('task_list.html', results=('', None))
+        @self.app.route('/task_list/get_task_output/<int:task_id>', methods=['GET'])
+        def get_task_output(task_id):
+            try:
+                (errormsg, task_output) = self.manage_validator.check_permission_and_run(
+                        self.permissions_manager.get_task,
+                        session['username'],
+                        self.tasks_manager.get_task_output,
+                        [int(task_id)]
+                        )
+                if errormsg != '': session['error_message'] += errormsg
+            except:
+                pass
+            return(task_output)
+
 
 
         @self.app.route('/task_list/kill_task/<int:task_id>', methods=['GET'])
         def kill_task(task_id):
             session['error_message'] = ''
             try:
-
                 (errormsg, tasks_dict) = self.manage_validator.check_permission_and_run(
                         self.permissions_manager.kill_task,
                         session['username'],
@@ -908,14 +917,4 @@ class Manage():
             except:
                 pass
 
-            try:
-                (errormsg, tasks_dict) = self.manage_validator.check_permission_and_run(
-                        self.permissions_manager.get_tasks,
-                        session['username'],
-                        self.tasks_manager.read_tasks,
-                        [None]
-                        )
-                if errormsg != '': session['error_message'] += errormsg
-            except:
-                pass
-            return render_template('task_list.html', results=(tasks_dict))
+            return redirect(url_for('get_tasks'))

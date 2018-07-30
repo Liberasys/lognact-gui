@@ -63,6 +63,15 @@ class Tasks_manager():
             return(TaskThread.xt_kill_pid_command_and_commit(self.__db_uri, task_id))
         except Exception as e:
             return(e.message, None)
+        return("", None)
+
+
+    def get_task_output(self, task_id):
+        try:
+            taskorm = sqladb.session.query(Task).get(task_id)
+        except Exception as e:
+            return(e.message, None)
+        return ("", taskorm.output)
 
 
     def get_running_tasks(self):
