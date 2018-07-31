@@ -12,11 +12,13 @@ thread_task_debug = False
 
 class TaskThread(threading.Thread):
 
-    def __init__(self, db_uri = None, username = None, command = None):
+    def __init__(self, db_uri = None, username = None, command = None, cdw = None):
         threading.Thread.__init__(self)
         self.__db_uri = db_uri
         self.__username = username
         self.__command = command
+        self.__cdw = cdw
+
         if db_uri == None or username == None or command == None:
             raise ValueError('Cannot start a thread, not enough information.')
         self.start()
@@ -191,8 +193,16 @@ class TaskThread(threading.Thread):
         dbsession.add(ormtask)
         dbsession.commit()
 
+        popen_env = os.environ
+        popen_env['ANSIBLE_FORCE_COLOR'] = 'true'
+        popen_env['ANSIBLE_STDOUT_CALLBACK'] = 'debug'
+
+
         # Run the process and get its PID
-        process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, close_fds=True, preexec_fn=os.setsid)
+        if self.__cdw != None:
+            process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, env=popen_env, cwd=self.__cdw, close_fds=True, preexec_fn=os.setsid)
+        else:
+            process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, env=popen_env, close_fds=True, preexec_fn=os.setsid)
         ormtask.start_date = datetime.now()
         ormtask.status = "running"
         ormtask.pid = process.pid

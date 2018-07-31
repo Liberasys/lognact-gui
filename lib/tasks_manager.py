@@ -35,9 +35,9 @@ class Tasks_manager():
         TaskThread.xt_update_disappeared_tasks(self.__db_uri)
         return('', None)
 
-    def create_task(self, username, command):
+    def create_task(self, username, command, cdw = None):
         try:
-            task = TaskThread(db_uri=self.__db_uri, username=username, command=command)
+            task = TaskThread(db_uri=self.__db_uri, username=username, command=command, cdw = cdw)
             return('', None)
         except Exception as e:
             return(e.message, None)

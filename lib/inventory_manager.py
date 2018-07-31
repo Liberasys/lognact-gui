@@ -36,7 +36,7 @@ class Inventory():
         self.__nodes_dict = {}
         self.__refresh_timeout = 10
 
-        self.__last_inventory_refresh_timestamp = time.time()
+        #self.__last_inventory_refresh_timestamp = time.time()
         self.__inventory_file = YamlFileSyncer(self.__ansible_dir_path + "/" + inventory_file_subpath)
         if self.__inventory_file.init_error_return != "":
             raise ValueError(self.__inventory_file.init_error_return)
@@ -99,12 +99,12 @@ class Inventory():
                     data["all"]["children"][group_name] = {}
                     data["all"]["children"][group_name]["hosts"] = {}
                     for node in group.nodes_list:
-                        data["all"]["children"][group_name]["hosts"][node.name] = "null"
+                        data["all"]["children"][group_name]["hosts"][node.name] = {}
         # Add nodes from __nodes_dict
         if self.__nodes_dict != []:
             data["all"]["hosts"] = {}
             for node_name, node in self.__nodes_dict.items():
-                data["all"]["hosts"][node_name] = "null"
+                data["all"]["hosts"][node_name] = {}
         # Add old inventories vars
         if old_data != None and "all" in old_data and "vars" in old_data["all"]:
             data["all"]["vars"] = old_data["all"]["vars"]

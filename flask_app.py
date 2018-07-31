@@ -44,6 +44,7 @@ class Manage():
         self.host = conf['host']
         self.port = conf['port']
         self.debug_mode = conf['debug_mode']
+        self.ansible_path = conf['ansible_dir_path']
 
         self.db_uri = 'sqlite:///' + conf['db_path']
         self.lib_db_uri = 'sqlite:///' + conf['db_path']
@@ -784,16 +785,54 @@ class Manage():
             return render_template('users_groups.html', results=('', None))
 
 
+        @self.app.route('/nodes/set_active_playbook/<string:playbook_name>', methods=['GET'])
+        def set_active_playbook(playbook_name):
+            session['selected_playbook'] = playbook_name
+            return playbook_name
+
+        @self.app.route('/nodes/run_active_playbook_on_node/', methods=['GET'])
+        def run_active_playbook_on_node():
+            if (
+                   'selected_playbook' not in session or
+                   session['selected_playbook'] == None or
+                   'selected_node' not in session or
+                   session['selected_node'] == None
+                ):
+                session['error_message'] += "No playbook selected or no node selected."
+            command_to_run = "ansible-playbook " + session['selected_playbook'] + " --inventory ./inventories/inventory.yml --limit " + session['selected_node']
+            print(command_to_run)
+            task = self.tasks_manager.create_task(username=session['username'], command=command_to_run, cdw=self.ansible_path)
+            return session['selected_playbook']
+
+
+        @self.app.route('/nodes/run_active_playbook_on_group/', methods=['GET'])
+        def run_active_playbook_on_group():
+            if (
+                   'selected_playbook' not in session or
+                   session['selected_playbook'] == None or
+                   'selected_group' not in session or
+                   session['selected_group'] == None
+                ):
+                session['error_message'] += "No playbook selected or no group selected."
+            command_to_run = "ansible-playbook " + session['selected_playbook'] + " --inventory ./inventories/inventory.yml --limit " + session['selected_group']
+            print(command_to_run)
+            task = self.tasks_manager.create_task(username=session['username'], command=command_to_run, cdw=self.ansible_path)
+            return session['selected_playbook']
+
+
+
         #playbook
         @self.app.route('/playbook/')
         def playbook():
+            import glob
+
             message = ''
             groups_list = None
             nodes_in_group = None
             playbooks_list = None
             groups_list_response = ['']
             nodes_in_group_response =['']
-            plybooks_list_response = ['']
+            playbooks_list_response = ['']
 
             try:
                 groups_list_response = self.manage_validator.check_permission_and_run(
@@ -817,8 +856,10 @@ class Manage():
             except:
                 pass
 
-
-
+            playbooks_list = []
+            for path in glob.glob(self.ansible_path + "*.yml"):
+                playbooks_list.append(os.path.basename(path))
+            playbooks_list = sorted(playbooks_list)
 
             return render_template('playbook.html',
                                                     results=(message,

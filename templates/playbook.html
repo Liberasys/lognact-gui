@@ -1,6 +1,8 @@
 {% extends 'template.html' %}
 {% block title %} {{ _('playbook') }} {% endblock %}
 {% block work %}
+{% set (message, groups_list, nodes_in_group, playbooks_list) = results %}
+
 <section class = "page_playbooks">
 
 
@@ -18,8 +20,8 @@
         <span class="caret"></span></button>
         <ul class="dropdown-menu">
           {% if results is not undefined %}
-            {% if results[1] is not none %}
-              {% for group in results[1] %}
+            {% if groups_list is not none %}
+              {% for group in groups_list %}
                   {% if group == session['selected_group'] %}
                   <li><a style="color:red;">{{group}}</a></li>
                   {% else %}
@@ -41,8 +43,8 @@
         <span class="caret"></span></button>
         <ul class="dropdown-menu">
           {% if results is not undefined %}
-            {% if results[2] is not none %}
-              {% for node in results[2] %}
+            {% if nodes_in_group is not none %}
+              {% for node in nodes_in_group %}
                   <li><a id ="{{node}}_from_node_in_group_in_playbook" onclick="select_node('_from_node_in_group_in_playbook', '{{node}}')">{{node}}</a></li>
               {% endfor %}
             {% endif %}
@@ -65,19 +67,23 @@
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{_('Playbook')}}
                     <span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                      <li><a href="#">playbook1</a></li>
-                      <li><a href="#">playbook2</a></li>
-                      <li><a href="#">playbook3</a></li>
+                    {% if results is not undefined %}
+                      {% if playbooks_list is not none %}
+                        {% for playbook in playbooks_list %}
+                          <li><a id ="{{playbook}}_from_selected_playbook_in_playbook" onclick="select_playbook('_from_selected_playbook_in_playbook', '{{playbook}}')">{{playbook}}</a></li>
+                        {% endfor %}
+                      {% endif %}
+                    {% endif %}
                     </ul>
                   </div>
                 </td>
                 <td>
-                  <button type="button" onclick="run_node()" class="btn btn-info">{{_('run node')}}</button>
+                  <button type="button" onclick="run_playbook_on_node()" class="btn btn-info">{{_('run playbook on node')}}</button>
                 </td>
               <tr>
                 <td></td>
                 <td>
-                  <button data-toggle="modal" data-target="#add_group" type="button" class="btn btn-warning">{{_('run group')}}</button>
+                  <button data-toggle="modal" data-target="run playbook on group" type="button" onclick="run_playbook_on_group()" class="btn btn-warning">{{_('run playbook on group')}}</button>
                 </td>
               </tr>
             </table>

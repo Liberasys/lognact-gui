@@ -1,5 +1,5 @@
 ---
-ansible_dir_path: ./ansible/
+ansible_dir_path: ./ansible_example/
 color: red
 debug_mode: false
 default_user: admin

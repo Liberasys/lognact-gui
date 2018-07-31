@@ -1,15 +1,13 @@
 
-
-
-
-
-
-
-
-
-function run_node(){
-  // implement this
+function run_playbook_on_node(){
+  callAjax("/nodes/run_active_playbook_on_node/", '/task_list/');
 }
+
+
+function run_playbook_on_group(){
+  callAjax("/nodes/run_active_playbook_on_group/", '/task_list/');
+}
+
 
 // nodes page methods
 var selected_node ="";
@@ -42,7 +40,7 @@ function select_group(suffix, name) {
       callAjax("/nodes_groups/set_active_group/" + name , '/nodes_groups/');
     }
     else if (suffix == '_from_groups_list_in_playbook') {
-      // implement this
+      callAjax("/nodes_groups/set_active_group/" + name , '/playbook/');
     }
 
 }
@@ -71,11 +69,28 @@ function select_node(suffix, name) {
       callAjax("/nodes/set_active_node/" + name , '/nodes/');
     }
     else if (suffix == '_from_node_in_group_in_playbook') {
-      // implement this
+      callAjax("/nodes/set_active_node/" + name , '/playbook/');
     }
-
-
 }
+
+
+// set the selected playbook from playbook into the javavascript var
+var old_selected_playbook_from_playbook;
+function select_playbook(suffix, name) {
+  id = name + suffix;
+  selected_playbook_from_playbook = name;
+    if (document.getElementById(old_selected_playbook_from_playbook)) {
+        document.getElementById(old_selected_playbook_from_playbook).style.cssText = "color: black; background-color: white;";
+    }
+    old_selected_playbook_from_playbook = id;
+    document.getElementById(id).style.cssText = "color: red; background-color: #F5F5F5";
+    if (suffix == '_from_selected_playbook_in_playbook'){
+      callAjax("/nodes/set_active_playbook/" + name , '/playbook/');
+    }
+}
+
+
+
 
 // set the selected node from node_in_group into the javavascript var
 var old_selected_node_from_group;
