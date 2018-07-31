@@ -8,7 +8,7 @@ import signal
 from subprocess import Popen, PIPE, STDOUT
 #from flask_babel import gettext
 
-thread_task_debug = True
+thread_task_debug = False
 
 class TaskThread(threading.Thread):
 
@@ -21,8 +21,13 @@ class TaskThread(threading.Thread):
             raise ValueError('Cannot start a thread, not enough information.')
         self.start()
 
+    ###########################################################################
+    # NOTE : Every function beginning with xt_ are called externally.         #
+    #        The DB makes the link between task threads and flask threads.    #
+    ###########################################################################
 
-    def __get_db_session(db_uri):
+
+    def __xt_get_db_session(db_uri):
         import sys
         sys.path.append('./models')
         from models import Task
@@ -33,12 +38,6 @@ class TaskThread(threading.Thread):
         Session = sessionmaker(bind=engine)
         dbsession = Session()
         return(dbsession)
-
-
-    ###########################################################################
-    # NOTE : Every function beginning with xt_ are called externally.         #
-    #        The DB makes the link between task threads and flask threads.    #
-    ###########################################################################
 
 
     def __xt_get_proc_command_by_pid(pid):
@@ -90,6 +89,22 @@ class TaskThread(threading.Thread):
             return("", None)
 
 
+    def __xt_get_pgid_number_of_tasks(pgid):
+        import glob
+        p_list = []
+        for stat_file_path in glob.glob('/proc/[1-9]*/stat'):
+            try:
+                stat_file = open(stat_file_path, 'rt')
+                stat = stat_file.readline().split()
+                stat_file.close()
+                if stat[4] == str(pgid):
+                    p_list.append(stat[0])
+            except Exception as e:
+                print(e)
+                pass
+        return(len(p_list))
+
+
     def xt_kill_pid_command_and_commit(db_uri, id):
         import sys
         sys.path.append('./models')
@@ -104,38 +119,45 @@ class TaskThread(threading.Thread):
 
         if thread_task_debug: print("KILL : xt_kill_pid_command_and_commit process id:", id_text)
 
-        # A small DB session in order to get Task ORM object
-        dbsession = TaskThread.__get_db_session(db_uri)
-        taskorm = dbsession.query(Task).filter(Task.id == id).one()
-        dbsession.close()
-        # BUG in babel ? cannot use getttext in this context
-        #   File "/usr/lib/python3/dist-packages/flask_babel/__init__.py", line 214, in get_translations
-        #   babel = current_app.extensions['babel']
-        #   KeyError: 'babel'
-        #return((gettext("Unable to kill task id %(id)s, not found.", id=id_text), None))
-        if taskorm == None:
-            return(("Unable to kill task id " + id_text + ", not found.", None))
+        # Here we get task data with a sqlalchemy excecute in order to not
+        # get a session which causes multithreads issues
+        try:
+            from models import Task
+            from sqlalchemy import create_engine
+            engine = create_engine(db_uri)
+            result = engine.execute("select * from task_list where id=" + id_text).fetchone()
+            task_pid = result['pid']
+            task_pgid = os.getpgid(task_pid)
+            task_command = result['command']
+        except Exception as e:
+            print(e.message)
+            ## BUG in babel ? cannot use getttext in this context
+            ##   File "/usr/lib/python3/dist-packages/flask_babel/__init__.py", line 214, in get_translations
+            ##   babel = current_app.extensions['babel']
+            ##   KeyError: 'babel'
+            ##return((gettext("Unable to kill task id %(id)s, not found.", id=id_text), None))
+            return("Unable to get task id data, abording killing task " + id, None)
 
-        kill_result = TaskThread.__xt_kill_pid_command(taskorm.pid, taskorm.command)
+
+        if thread_task_debug: print("Number of process in process group:", TaskThread.__xt_get_pgid_number_of_tasks(task_pgid))
+
+        kill_result = TaskThread.__xt_kill_pid_command(task_pid, task_command)
         if  kill_result != ("", None):
+            if thread_task_debug: print("Kill bad result:", kill_result)
             return(kill_result)
         else:
             # Wait for the thread termination
-            while(TaskThread.__xt_check_proc_exists(taskorm.pid, taskorm.command)):
+            if thread_task_debug: print("Wait for the thread termination")
+            while(TaskThread.__xt_get_pgid_number_of_tasks(task_pgid) != 0):
                 time.sleep(0.2)
-            time.sleep(2)
-            if thread_task_debug: print("Process", taskorm.pid, "ended after kill.")
 
-            # We have to open a new DB session here because the ORM object was
-            # created in an other thread and have just been released.
-            if thread_task_debug: print("Process", taskorm.pid, ": updating status in DB.")
-            dbsession = TaskThread.__get_db_session(db_uri)
-            taskorm = dbsession.query(Task).filter(Task.id == id).one()
-            taskorm.status = "killed"
-            taskorm.end_date = datetime.now()
-            dbsession.commit()
-            dbsession.close()
-            if thread_task_debug: print("Process", taskorm.pid, ": status updated in DB.")
+            try:
+                engine = create_engine(db_uri)
+                result = engine.execute("UPDATE task_list SET status = " + "'killed'" + "where id=" + id_text)
+                print(result)
+            except Exception as e:
+                print(e.message)
+                return("Unable to set task status", None)
             return("", None)
 
 
@@ -144,7 +166,7 @@ class TaskThread(threading.Thread):
         sys.path.append('./models')
         from models import Task
 
-        dbsession = TaskThread.__get_db_session(db_uri)
+        dbsession = TaskThread.__xt_get_db_session(db_uri)
         for instance in dbsession.query(Task).filter(Task.status == 'running').all():
             if not TaskThread.__xt_check_proc_exists(instance.pid, instance.command) \
               and instance.end_date == None:
@@ -159,11 +181,12 @@ class TaskThread(threading.Thread):
         #   poll the process stdout/stderr.
         # Each time we can close the DB session we do it in order to
         #   free the sqlite DB.
+
         import time
         import sys
         sys.path.append('./models')
         from models import Task
-        dbsession = TaskThread.__get_db_session(self.__db_uri)
+        dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
         ormtask = Task(self.__username, self.__command)
         dbsession.add(ormtask)
         dbsession.commit()
@@ -186,8 +209,8 @@ class TaskThread(threading.Thread):
             # Each second, we oppen a DB session and commit the
             # process output buffer.
             if ((time.time() - last_commit_epoch) > 1) :
-                dbsession = TaskThread.__get_db_session(self.__db_uri)
-                ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+                dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
+                ormtask = dbsession.query(Task).get(ormtask_id)
                 ormtask.output = ormtask.output + tmpoutbuf
                 dbsession.commit()
                 dbsession.close()
@@ -210,9 +233,11 @@ class TaskThread(threading.Thread):
                 tmpoutbuf = tmpoutbuf + line.decode("utf-8") + "\n"
 
         # We commit last output from Task
-        dbsession = TaskThread.__get_db_session(self.__db_uri)
-        ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+        dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
+        ormtask = dbsession.query(Task).get(ormtask_id)
         ormtask.output = ormtask.output + tmpoutbuf
+        dbsession.commit()
+        dbsession.close()
         tmpoutbuf = ""
 
         # Be shure that process exited
@@ -220,24 +245,23 @@ class TaskThread(threading.Thread):
 
         # Now process is ended, we set the status
         if thread_task_debug: print("Process return code:", process.returncode)
-        dbsession = TaskThread.__get_db_session(self.__db_uri)
-        ormtask = dbsession.query(Task).filter(Task.id == ormtask_id).one()
+        dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
+        ormtask = dbsession.query(Task).get(ormtask_id)
         ormtask.output = ormtask.output + "-- Return code: " + str(process.returncode)
         ormtask.end_date = datetime.now()
 
-        if ormtask.status != "killed":
+        if process.returncode != -15:
             if process.returncode != 0:
                 ormtask.status = "ko"
                 if thread_task_debug: print("Process", ormtask.pid, "ended KO")
             else:
                 ormtask.status = "ok"
                 if thread_task_debug: print("Process", ormtask.pid, "ended OK")
-            #self.__thread_running = False
-        else:
-            if thread_task_debug: print("Process", ormtask.pid, "killed")
 
         dbsession.commit()
         dbsession.close()
+        del(ormtask)
+        del(dbsession)
 
 
 

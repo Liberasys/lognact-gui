@@ -45,8 +45,10 @@ class Manage():
         self.port = conf['port']
         self.debug_mode = conf['debug_mode']
 
-        self.db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
-        self.lib_db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
+        self.db_uri = 'sqlite:///' + conf['db_path']
+        self.lib_db_uri = 'sqlite:///' + conf['db_path']
+        #self.db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
+        #self.lib_db_uri = 'sqlite:///' + conf['db_path'] + '?check_same_thread=False'
 
 
         # use Flask as app and set app configuration :
@@ -65,29 +67,10 @@ class Manage():
         # sqladb.create_all()
 
         # sqladb.session.commit()
-        # sqladb.session.add(Task(1, 'user1', 1, "test_command1"))
-        # sqladb.session.add(Task(2, 'user2', 2, "test_command2"))
-        # #sqladb.session.add(Task(2, 'user3', 3, "test_command3"))
-        # sqladb.session.commit()
-        # print("sqladb.session.query(Task): ", sqladb.session.query(Task))
-        # print("sqladb.session.query(Task).all()", sqladb.session.query(Task).all())
-        # print("Task.query.all()", Task.query.all())
-        #
-        # for taskobject in Task.query.all():
-        #     print(taskobject.command)
-
-
 
         # use Babel
         # see doc : https://pythonhosted.org/Flask-Babel/
         self.babel = Babel(self.app)
-
-        # use SQLAlchemy
-        # see doc : http://flask-sqlalchemy.pocoo.org/2.3/
-        #self.bdd = Database(self.app)
-
-        # use Flask session
-        # see doc : https://pythonhosted.org/Flask-Session/
 
         # use managers :
         self.inventory_manager = Inventory(conf['ansible_dir_path'], conf['inventory_file_subpath'])
@@ -107,11 +90,11 @@ class Manage():
         with self.app.app_context():
             g.lang = self.app.config['BABEL_DEFAULT_LOCALE']
 
-        print(self.users_and_users_groups_manager.add_user(
-                                                    conf['default_user'],
-                                                    conf['hash'],
-                                                    True
-                                                    ))
+        self.users_and_users_groups_manager.add_user(
+                                                     conf['default_user'],
+                                                     conf['hash'],
+                                                     True
+                                                     )
 
         # use views :
         self.__define_views()
@@ -914,7 +897,8 @@ class Manage():
                         [int(task_id)]
                         )
                 if errormsg != '': session['error_message'] += errormsg
-            except:
+            except Exception as e:
+                print(e.message, None)
                 pass
 
             return redirect(url_for('get_tasks'))

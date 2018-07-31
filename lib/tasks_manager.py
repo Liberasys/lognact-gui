@@ -43,9 +43,12 @@ class Tasks_manager():
             return(e.message, None)
 
     def read_tasks(self):
-        tasks_dict = {}
+        import collections
+        tasks_dict = collections.OrderedDict({})
         #for instance in sqladb.session.query(Task).all().order_by(Task.id.amount.desc()).limit(50):
-        for instance in sqladb.session.query(Task).all():
+        #for instance in sqladb.session.query(Task).all():
+        #for instance in sqladb.session.query(Task).order_by(Task.id.desc()):
+        for instance in sqladb.session.query(Task).order_by(Task.id.desc()):
             tasks_dict[instance.id] = {
                                       'username': instance.username,
                                       'pid': instance.pid,
@@ -59,12 +62,8 @@ class Tasks_manager():
 
 
     def kill_task(self, task_id):
-        try:
-            return(TaskThread.xt_kill_pid_command_and_commit(self.__db_uri, task_id))
-        except Exception as e:
-            return(e.message, None)
-        return("", None)
-
+        (errmsg, result) = TaskThread.xt_kill_pid_command_and_commit(self.__db_uri, task_id)
+        return(errmsg, result)
 
     def get_task_output(self, task_id):
         try:

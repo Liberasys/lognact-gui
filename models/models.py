@@ -38,7 +38,7 @@ class Task(inherit):
     pid        = Column(Integer,  unique=False)
     command    = Column(Text,     unique=False)
     output     = Column(Text,     unique=False)
-    status     = Column(Text,     unique=False) # running/ok/ko/disappeared
+    status     = Column(Text,     unique=False) # running/ok/ko/killed/disappeared
     start_date = Column(DateTime, unique=False)
     end_date   = Column(DateTime, unique=False)
 

@@ -45,7 +45,7 @@ class NodeOrGroup():
              self.vars_dict = {}
          else:
              self.vars_dict = data
-         print("Loaded entity", self.name, "with vars: ", self.vars_dict)
+         #print("Loaded entity", self.name, "with vars: ", self.vars_dict)
          return("", None)
 
 
