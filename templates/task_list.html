@@ -30,7 +30,7 @@
       <div class="table_configured">
         <table class="table table-hover">
           <thead>
-          <tr class="fixcol">
+           <tr>
             <th>{{_('Task id')}}</th>
             <th>{{_('PID')}}</th>
             <th>{{_('Start by')}}</th>
@@ -39,7 +39,7 @@
             <th>{{_('Start')}}</th>
             <th>{{_('End')}}</th>
             <th>{{_('Kill task')}}</th>
-          </tr>
+           </tr>
           </thead>
           <tbody>
           {% for task_id, task_data in tasks_list.items() %}
@@ -99,6 +99,22 @@ function traite(request, response){
     cdiv.innerHTML = html;
   }
 }
+
+// var tableOffset = $("#table-1").offset().top;
+//var $header = $("#table-1 > thead").clone();
+//var $fixedHeader = $("#header-fixed").append($header);
+//
+//$(window).bind("scroll", function() {
+//  var offset = $(this).scrollTop();
+//
+//    if (offset >= tableOffset && $fixedHeader.is(":hidden")) {
+//        $fixedHeader.show();
+//    }
+//    else if (offset < tableOffset) {
+//        $fixedHeader.hide();
+//    }
+//});
+
 
 </script>
 
