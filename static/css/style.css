@@ -386,6 +386,12 @@ nav .btn-warning {
 .search .btn-default {
   margin-left: 5px;
 }
+/*.fixcol {
+  position: sticky;
+  width: 75.5%;
+  background-color: #fff;
+  z-index: 1;
+}*/
 .glyphicon-exclamation-sign {
   color: #cc1506;
 }
