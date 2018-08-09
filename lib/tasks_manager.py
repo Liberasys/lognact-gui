@@ -40,7 +40,7 @@ class Tasks_manager():
             task = TaskThread(db_uri=self.__db_uri, username=username, command=command, cdw = cdw)
             return('', None)
         except Exception as e:
-            return(e.message, None)
+            return(str(e), None)
 
     def read_tasks(self):
         import collections
@@ -65,12 +65,34 @@ class Tasks_manager():
         (errmsg, result) = TaskThread.xt_kill_pid_command_and_commit(self.__db_uri, task_id)
         return(errmsg, result)
 
+
     def get_task_output(self, task_id):
         try:
             taskorm = sqladb.session.query(Task).get(task_id)
         except Exception as e:
             return(e.message, None)
         return ("", taskorm.output)
+
+
+    def get_task_as_jsonify(self, task_id):
+        from flask import jsonify
+        try:
+            taskorm = sqladb.session.query(Task).get(task_id)
+        except Exception as e:
+            print("orm error")
+            return(e.message, None)
+
+        tasks_dict = {
+                     'id': task_id,
+                     'username': taskorm.username,
+                     'pid': taskorm.pid,
+                     'command': taskorm.command,
+                     'output': taskorm.output,
+                     'status': taskorm.status,
+                     'start_date': taskorm.start_date,
+                     'end_date': taskorm.end_date
+                     }
+        return ("", jsonify(tasks_dict))
 
 
     def get_running_tasks(self):

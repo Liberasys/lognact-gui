@@ -141,6 +141,9 @@ class Permissions_manager():
     def get_task(self, fx_permission_mgr_args):
         return self.__is_su(fx_permission_mgr_args)
 
+    def get_task_as_jsonify(self, fx_permission_mgr_args):
+        return self.__is_su(fx_permission_mgr_args)
+
     def kill_task(self, fx_permission_mgr_args):
         return self.__is_su(fx_permission_mgr_args)
 

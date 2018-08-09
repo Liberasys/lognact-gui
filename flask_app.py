@@ -83,8 +83,12 @@ class Manage():
         self.tasks_manager.update_disappeared_tasks()
 
         ### XXX tests
-        task3 = self.tasks_manager.create_task(username='user3', command="ping -c 45 127.0.0.1")
-
+        #task1 = self.tasks_manager.create_task(username='user3', command="ping -c 45 127.0.0.1")
+        #task2 = self.tasks_manager.create_task(username='user3', command="pwd", cdw=self.ansible_path)
+        #task2 = self.tasks_manager.create_task(username='user3', command="echo $PATH")
+        #task2 = self.tasks_manager.create_task(username='user3', command="/usr/bin/ansible-playbook -vvv ./example2.yml --inventory ./inventories/inventory.yml --limit localhost", cdw=self.ansible_path)
+        #task2 = self.tasks_manager.create_task(username='user3', command="./echo_args.bash --inventory ./inventories/inventory.yml --limit localhost", cdw=self.ansible_path)
+        #task2 = self.tasks_manager.create_task(username='user3', command="./test.bash", cdw=self.ansible_path)
 
         # set global vars (lang):
         # use app_context -> see doc : http://flask.pocoo.org/docs/1.0/appcontext/ for details
@@ -925,6 +929,21 @@ class Manage():
                 pass
             return(task_output)
 
+
+        @self.app.route('/task_list/get_task_as_json/<int:task_id>', methods=['GET'])
+        def get_task_as_json(task_id):
+            try:
+                (errormsg, task_as_jsonify) = self.manage_validator.check_permission_and_run(
+                        self.permissions_manager.get_task_as_jsonify,
+                        session['username'],
+                        self.tasks_manager.get_task_as_jsonify,
+                        [int(task_id)]
+                        )
+                if errormsg != '': session['error_message'] += errormsg
+            except Exception as e:
+                print(e.message, None)
+                pass
+            return(task_as_jsonify)
 
 
         @self.app.route('/task_list/kill_task/<int:task_id>', methods=['GET'])
