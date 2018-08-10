@@ -5,10 +5,11 @@ import syslog
 import os
 import errno
 import signal
+import pathlib
 from subprocess import Popen, PIPE, STDOUT
 #from flask_babel import gettext
 
-thread_task_debug = False
+thread_task_debug = True
 
 class TaskThread(threading.Thread):
 
@@ -17,8 +18,12 @@ class TaskThread(threading.Thread):
         self.__db_uri = db_uri
         self.__username = username
         self.__command = command
-        self.__cdw = cdw
-
+        if cdw != None:
+            current_path = (pathlib.Path()).resolve()
+            absolute_cdw_path = current_path.joinpath(cdw)
+            self.__cdw = str(absolute_cdw_path)
+        else:
+            self.__cdw = cdw
         if db_uri == None or username == None or command == None:
             raise ValueError('Cannot start a thread, not enough information.')
         self.start()
@@ -186,6 +191,7 @@ class TaskThread(threading.Thread):
 
         import time
         import sys
+        import shlex
         sys.path.append('./models')
         from models import Task
         dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
@@ -195,14 +201,22 @@ class TaskThread(threading.Thread):
 
         popen_env = os.environ
         popen_env['ANSIBLE_FORCE_COLOR'] = 'true'
+        popen_env['PYTHONUNBUFFERED'] = '1'
+        #popen_env['ANSIBLE_LOAD_CALLBACK_PLUGINS'] = '1'
         popen_env['ANSIBLE_STDOUT_CALLBACK'] = 'debug'
+        #popen_env['CALLBACK_TYPE'] = 'stdout'
+        #popen_env['PATH'] = '/usr/local/bin:/usr/bin:/bin'
 
 
         # Run the process and get its PID
         if self.__cdw != None:
-            process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, env=popen_env, cwd=self.__cdw, close_fds=True, preexec_fn=os.setsid)
+            if thread_task_debug: print("    cdw:", self.__cdw)
+            process = Popen(shlex.split(self.__command), stdin=None, stdout=PIPE, stderr=STDOUT, shell=False, env=popen_env, cwd=self.__cdw, close_fds=True, preexec_fn=os.setsid)
+
         else:
-            process = Popen(ormtask.command, stdin=None, stdout=PIPE, stderr=STDOUT, shell=True, env=popen_env, close_fds=True, preexec_fn=os.setsid)
+            if thread_task_debug: print("    no cdw.")
+            process = Popen(shlex.split(self.__command), stdin=None, stdout=PIPE, stderr=STDOUT, shell=False, env=popen_env, close_fds=True, preexec_fn=os.setsid)
+
         ormtask.start_date = datetime.now()
         ormtask.status = "running"
         ormtask.pid = process.pid
@@ -216,20 +230,10 @@ class TaskThread(threading.Thread):
         tmpoutbuf = ""
         while True:
 
-            # Each second, we oppen a DB session and commit the
-            # process output buffer.
-            if ((time.time() - last_commit_epoch) > 1) :
-                dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
-                ormtask = dbsession.query(Task).get(ormtask_id)
-                ormtask.output = ormtask.output + tmpoutbuf
-                dbsession.commit()
-                dbsession.close()
-                tmpoutbuf = ""
-                last_commit_epoch = time.time()
-
             # In any case we poll a line from process stdout/stderr
             line = process.stdout.readline()
-            line = line.rstrip()
+            if thread_task_debug: print("    Stdout line:", line)
+
 
             # If the readline returns None, then the process is ended
             #   and we get out of the polling loop
@@ -238,20 +242,37 @@ class TaskThread(threading.Thread):
 
             # If we have got something, we add it to the buffer of data to
             #   be commitied in db.
-            if line != "":
-                if thread_task_debug: print("    Stdout line:", line)
-                tmpoutbuf = tmpoutbuf + line.decode("utf-8") + "\n"
+            line = line.rstrip()
+            tmpoutbuf = tmpoutbuf + line.decode("utf-8") + "\n"
 
-        # We commit last output from Task
-        dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
-        ormtask = dbsession.query(Task).get(ormtask_id)
-        ormtask.output = ormtask.output + tmpoutbuf
-        dbsession.commit()
-        dbsession.close()
-        tmpoutbuf = ""
+            # Each second, we oppen a DB session and commit the
+            # process output buffer if needed.
+            if ( ( (time.time() - last_commit_epoch) > 1) and (tmpoutbuf != "") ):
+                dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
+                ormtask = dbsession.query(Task).get(ormtask_id)
+                ormtask.output = ormtask.output + tmpoutbuf
+                dbsession.commit()
+                dbsession.close()
+                tmpoutbuf = ""
+                last_commit_epoch = time.time()
+
+
+        # We commit last output from Task if not void
+        if (tmpoutbuf != ""):
+            dbsession = TaskThread.__xt_get_db_session(self.__db_uri)
+            ormtask = dbsession.query(Task).get(ormtask_id)
+            ormtask.output = ormtask.output + tmpoutbuf
+            dbsession.commit()
+            dbsession.close()
+            tmpoutbuf = ""
 
         # Be shure that process exited
         process.wait()
+
+        line = process.stdout.readline()
+        if thread_task_debug: print("    Stdout line:", line)
+
+
 
         # Now process is ended, we set the status
         if thread_task_debug: print("Process return code:", process.returncode)

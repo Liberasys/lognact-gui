@@ -47,9 +47,9 @@
         <table class="table table-hover">
           <tbody>
           {% for task_id, task_data in tasks_list.items() %}
-          <tr onclick="display_task_output({{task_id}})" >
+          <tr onclick="set_current_task_id({{task_id}})" >
             <td>{{task_id}}</td>
-            <td>{{task_pid}}</td>
+            <td>{{task_data.pid}}</td>
             <td>{{task_data.username}}</td>
             <td>{{task_data.command}}</td>
             <td><span  class="{{ icon_mapping[task_data.status] }}"></td>
@@ -79,7 +79,7 @@
           <div class="table_and_body">
             <table class="table">
               <tr>
-                <pre id="contenu_tache_en_cours"></pre>
+                <pre id="current_task_output"></pre>
               </tr>
             </table>
           </div>
@@ -90,49 +90,71 @@
 </div>
 <script>
 
-function display_task_output(task_id){
-  var request = '/task_list/get_task_output/' + task_id;
-  var timer = 1;
-  callAjax(request, timer);
+
+current_task_id = null
+current_task_running = false
+
+function set_current_task_id(task_id){
+  current_task_id = task_id
+  current_task_running = false
+  update_task_output('/task_list/get_task_as_json/', 500)
 }
 
-function callAjax(request, timer) {
-  var xhttp;
-  if (window.XMLHttpRequest) {
-    // code for modern browsers
-    xhttp = new XMLHttpRequest();
-    } else {
-    // code for IE6, IE5
-    xhttp = new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      var response = this.responseText;
-      alert(response);
-      setTimeout(function(){ traite(request, response); }, timer);
+function set_current_task_running(){
+  current_task_running = true
+}
+
+function set_current_task_not_running(){
+  current_task_running = false
+}
+
+
+function update_task_output(base_url, timer){
+  if (current_task_id != null){
+    var url = base_url + current_task_id;
+    var xhttp;
+    if (window.XMLHttpRequest) {
+      // code for modern browsers
+      xhttp = new XMLHttpRequest();
+      } else {
+      // code for IE6, IE5
+      xhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-  };
-  xhttp.open("GET", request, true);
-  xhttp.send();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var response = this.responseText;
+        process_task(response);
+        if (current_task_running) {
+          setTimeout(function(){ update_task_output(base_url, timer); }, timer);
+        }
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  }
 }
 
-function traite(request, response){
-  var tache = JSON parse(response);
+
+function process_task(response) {
+  var json_task = JSON.parse(response);
   var id = 1;
-  if(tache.execution != null){
-    var txt = tache.execution;
+  if(json_task.output != null){
+    var txt = json_task.output;
     txt = txt.replace(/\\n/g, "\n")
     txt = txt.replace(/\\t/g, "\t")
     var ansi_up = new AnsiUp;
     var html = ansi_up.ansi_to_html(txt);
-    var cdiv = document.getElementById("contenu_tache_en_cours");
+    var cdiv = document.getElementById("current_task_output");
     cdiv.innerHTML = html;
   }
-
-//  if(tache.date_fin == null){
-//    callAjax("/console/lecture_tache/" + id + "/", 300);
-//}
+  if (json_task.status == 'running'){
+    set_current_task_running();
+  }
+  else{
+    set_current_task_not_running();
+  }
 }
+
 
 
 </script>
