@@ -1,0 +1,33 @@
+---
+
+- name: "line 1"
+  lineinfile: path="./example_text_file_delme.txt" line="line1" create=yes
+  become: no
+
+- name: "line 2"
+  lineinfile: path="./example_text_file_delme.txt" line="line2" create=yes
+  become: no
+
+- name: "line 3"
+  lineinfile: path="./example_text_file_delme.txt" line="line3" create=yes
+  become: no
+
+- name: "line 4"
+  lineinfile: path="./example_text_file_delme.txt" line="line4" create=yes
+  become: no
+
+- name: "line 5"
+  lineinfile: path="./example_text_file_delme.txt" line="line5" create=yes
+  become: no
+
+- name: "line 6"
+  lineinfile: path="./example_text_file_delme.txt" line="line6" create=yes
+  become: no
+
+- name: "Remove example file"
+  file:
+      state: absent
+      path: "./example_text_file_delme.txt"
+
+# ça pete quand on active :
+- include_vars: 'my_variables.yml'

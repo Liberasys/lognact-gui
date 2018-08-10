@@ -1,0 +1,21 @@
+---
+all:
+  children:
+    impairs:
+      hosts:
+        node1: {}
+        node3: {}
+        node5: {}
+    pairs:
+      hosts:
+        node2: {}
+        node4: {}
+        node6: {}
+  hosts:
+    localhost: {}
+    node1: {}
+    node2: {}
+    node3: {}
+    node4: {}
+    node5: {}
+    node6: {}
