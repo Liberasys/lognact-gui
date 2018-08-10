@@ -343,7 +343,7 @@ nav .btn-warning {
   margin: 0;
   padding: 0;
  }
- .page_nodes_groups .ta57%ble_and_body {
+ .page_nodes_groups .table_and_body {
   width: 100%;
   max-height: 55%;
   margin: 0;
@@ -397,7 +397,7 @@ nav .btn-warning {
   z-index: 1;
 }
 .glyphicon-exclamation-sign {
-  color: #cc1506;class="table_configured"
+  color: #cc1506;
 }
 .glyphicon-ban-circle {
   color: #ff0000;
@@ -411,7 +411,7 @@ nav .btn-warning {
 .glyphicon-refresh {
   color: #336bff;
 }
-.tid {}
+
 /* table {
 
     width: auto;
