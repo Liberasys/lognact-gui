@@ -47,7 +47,7 @@
         <table class="table table-hover">
           <tbody>
           {% for task_id, task_data in tasks_list.items() %}
-          <tr>
+          <tr onclick="display_task_output({{task_id}})" >
             <td>{{task_id}}</td>
             <td>{{task_pid}}</td>
             <td>{{task_data.username}}</td>
@@ -90,8 +90,34 @@
 </div>
 <script>
 
+function display_task_output(task_id){
+  var request = '/task_list/get_task_output/' + task_id;
+  var timer = 1;
+  callAjax(request, timer);
+}
+
+function callAjax(request, timer) {
+  var xhttp;
+  if (window.XMLHttpRequest) {
+    // code for modern browsers
+    xhttp = new XMLHttpRequest();
+    } else {
+    // code for IE6, IE5
+    xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var response = this.responseText;
+      alert(response);
+      setTimeout(function(){ traite(request, response); }, timer);
+    }
+  };
+  xhttp.open("GET", request, true);
+  xhttp.send();
+}
+
 function traite(request, response){
-  var tache = JSON.parse(response);
+  var tache = JSON parse(response);
   var id = 1;
   if(tache.execution != null){
     var txt = tache.execution;
@@ -102,22 +128,11 @@ function traite(request, response){
     var cdiv = document.getElementById("contenu_tache_en_cours");
     cdiv.innerHTML = html;
   }
-}
 
-// var tableOffset = $("#table-1").offset().top;
-//var $header = $("#table-1 > thead").clone();
-//var $fixedHeader = $("#header-fixed").append($header);
-//
-//$(window).bind("scroll", function() {
-//  var offset = $(this).scrollTop();
-//
-//    if (offset >= tableOffset && $fixedHeader.is(":hidden")) {
-//        $fixedHeader.show();
-//    }
-//    else if (offset < tableOffset) {
-//        $fixedHeader.hide();
-//    }
-//});
+//  if(tache.date_fin == null){
+//    callAjax("/console/lecture_tache/" + id + "/", 300);
+//}
+}
 
 
 </script>
