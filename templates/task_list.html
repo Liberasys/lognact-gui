@@ -27,7 +27,7 @@
           </table>
         </form>
       </div>
-      <div class="table_configured">
+      <div class="table_configured table_configured_2">
         <table class="table table-hover">
           <thead>
            <tr>
@@ -38,9 +38,13 @@
             <th>{{_('Status')}}</th>
             <th>{{_('Start')}}</th>
             <th>{{_('End')}}</th>
-            <th>{{_('Kill task')}}</th>
+            <th class="">{{_('Kill task')}}</th>
            </tr>
           </thead>
+        </table>
+      </div>
+      <div class="table_configured">
+        <table class="table table-hover">
           <tbody>
           {% for task_id, task_data in tasks_list.items() %}
           <tr onclick="set_current_task_id({{task_id}})" >
