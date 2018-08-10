@@ -86,7 +86,12 @@ nav .btn-warning {
  }
  .page_tasks_list .table_configured {
   overflow-y: scroll;
-  height: 70%;
+  height: 57%;
+ }
+ .page_tasks_list .table_configured_2 {
+  overflow-y: unset;
+  height: 12%;
+  width: 100%;
  }
  .page_tasks_list .up {
   min-width: 100%;
